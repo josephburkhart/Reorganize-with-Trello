@@ -17,7 +17,7 @@ Download `move-and-log.py`, `trello-key-and-token.txt`, `changes.log`, `errors.l
 4. Open a terminal session and navigate to the directory containing `move-and-log.py`
 5. For a given `cat1` and `cat2` (see first section above):
       1. Navigate to a directory containing some directories or files that you wish to move to a specific category and subcategory
-      2. Enter the command ``
+      2. Enter the command `dir /s /b > files.txt` (this is windows cmd syntax, adapt to your OS as appropriate)
       3. In `files.txt`, remove all paths corresponding to files and directories that you do not want to move
       4. In `files.txt`, add `!u`, `!d`, or `!` to paths of files/directories that are unclear (e.g., contents unknown or poorly documented), duplicates, or otherwise problematic, respectively
       5. Move `files.txt` to the directory containing `move-and-log.py`
