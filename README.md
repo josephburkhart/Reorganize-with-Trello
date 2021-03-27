@@ -1,2 +1,2 @@
 # Reorganize-with-Trello
-Log files for the preliminary reorganization of the KAD datastructure
+Tools for efficiently reorganizing large directory structures using Python and Trello’s REST API
