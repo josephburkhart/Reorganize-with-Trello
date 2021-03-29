@@ -1,5 +1,5 @@
 # Reorganize with Trello
-Tools for efficiently reorganizing large directory structures using Python and Trello’s REST API. Files and directories are moved to a new, adjacent directory `/2015_reorg/cat1/cat2`, where `cat1` is the a category under the new organizational scheme and `cat2` is a subcategory of `cat1`. Files are moved unless they are flagged with an issue, in which case a Trello card is created with the path of the offending file/directory and specified members of the Trello board are tagged on the card.
+Tools for efficiently reorganizing large directory structures using Python and Trello’s REST API. Files and directories are moved to a new, adjacent directory `/reorg_dir/cat1/cat2`, where `cat1` is the a category under the new organizational scheme and `cat2` is a subcategory of `cat1`. Files are moved unless they are flagged with an issue, in which case a Trello card is created with the path of the offending file/directory and specified members of the Trello board are tagged on the card.
 
 ## Requirements
 - Python (3.7 or newer)
