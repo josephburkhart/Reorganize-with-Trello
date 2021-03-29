@@ -19,7 +19,7 @@ Tools for efficiently reorganizing large directory structures using Python and T
       1. Navigate to a directory containing some directories or files that you wish to move to a specific category and subcategory
       2. Enter the command `dir /s /b > files.txt` (this is the command for windows cmd, adapt to your OS as appropriate)
       3. In `files.txt`, remove all paths corresponding to files and directories that you do not want to move
-            - Note: `files.txt` will contain the full paths for each subdirectory's contents, _and also the full path for that directory_. If you only want to move some of a subdirectory's contents, then make sure to remove the full path for the subdirectory itself.
+            - Note: `files.txt` will contain the full paths for each subdirectory's contents, _and also the full path for that subdirectory_. If you only want to move some of a subdirectory's contents, then make sure to remove the full path for the subdirectory itself.
       4. In `files.txt`, add `!u`, `!d`, or `!` to paths of files/directories that, respectively, are unclear (i.e., contents unknown or poorly documented), duplicates, or otherwise problematic
       6. Move `files.txt` to the directory containing `move-and-log.py`
       7. In the terminal, navigate to the directory containing `move-and-log.py` and enter the command `python move-and-log.py cat1 cat2` (but in place of `cat1` and `cat2` enter your own categories)
