@@ -12,10 +12,12 @@ In order to work, the following must be in the cwd:
 - files.txt
 - files named in files.txt
 - directory '2015_reorg'
+
+      
 """
 from pathlib import Path
 import requests
-import sys
+#import sys
 from distutils.dir_util import copy_tree
 import shutil
 import time 
@@ -31,7 +33,7 @@ def shorten_path(full_path, base_dir: str):    #ref: https://stackoverflow.com/q
 # Handle Command Line Arguments
 num_args = 3        #expected number of arguments
 #args = sys.argv[1:]   #preserve the list of arguments in a non-global object
-args = ["files4.txt", "Conventional", "Daily-Journaling"]
+args = ["files2.txt", "Conventional", "Daily-Journaling"]
 if len(args) != num_args:
     raise SystemExit(f"Usage: {sys.argv[0]} requires {num_args} arguments") 
 
@@ -43,14 +45,17 @@ API_KEY = credentials[1]
 OATH_TOKEN = credentials[3]
 BOARD_NAME = "KAD-Reorganize"
 LIST_NAME= "Issues"
-USER_NAMES = ["Admin Username 1", "Username 2", "etc"]
+#USER_NAMES = ["kevinfisher6", "sheripak"]
+USER_NAMES = ["joseph80236002"]
+
 
 files_path = Path.cwd() / args[0]   #text file that lists the full paths to each file I want to move
 
 errors_log_path = Path.cwd() / 'errors.log'
 changes_log_path = Path.cwd() / 'changes.log'
 
-base_dir = Path.cwd()          #used to shorten paths later - TODO: change this to an absolute path
+base_dir = Path.cwd()           #used to shorten paths later - TODO: change this to an absolute path
+reorg_dir = Path.cwd() / 'testdirectory2'   #this needs to be configured by each user
 
 data_stream = args[1]    #first organizational tier
 data_type = args[2]      #second organizational tier
@@ -60,9 +65,9 @@ paths = files_path.read_text().splitlines()     #names of files to move - TODO: 
 paths = [Path(p) for p in paths]            #turn strings into path objects
 
 #Find trello ids
-board_id = trello.find_board(BOARD_NAME)
-list_id = trello.find_list(board_id, LIST_NAME)
-member_ids = trello.find_members(USER_NAMES)
+board_id = trello.find_board(BOARD_NAME, API_KEY, OATH_TOKEN)
+list_id = trello.find_list(board_id, LIST_NAME, API_KEY, OATH_TOKEN)
+member_ids = trello.find_members(USER_NAMES, API_KEY, OATH_TOKEN)
 
 # Move the files and write to log
 for p in paths:
@@ -72,7 +77,7 @@ for p in paths:
     #paths for movement
     name = str(p.name)
     source = p         
-    destination = base_dir / '2015_reorg' / data_stream / data_type / name
+    destination = base_dir / reorg_dir / data_stream / data_type / name
     
     #check for error flag
     if "!" in name[-2:]:
@@ -91,7 +96,7 @@ for p in paths:
         #make an issue card
         card_name = issue_type + ": " + name[:name.index('!')] + " in " + str(shorten_path(source.parent, base_dir))
         card_description = ""
-        trello.create_card(list_id, card_name, card_description, member_ids) #TODO: make card_description an optional argument
+        trello.create_card(list_id, card_name, card_description, member_ids, API_KEY, OATH_TOKEN) #TODO: make card_description an optional argument
         
         #log the error
         error_msg = current_time + " --- " + card_name + "\n"
@@ -101,17 +106,17 @@ for p in paths:
     
     #check if the named file/directory exists
     if not p.exists():
-        print(f"Warning: {name} does not exist in {source.parent}. Move has been skipped. Continuing...")
+        print(f"Warning: {name} does not exist in {source.parent}\nMove has been skipped. Continuing...")
         continue
     
     #check if there is a duplicate file/directory at the destination
     if destination.exists():
-        print("Warning: f{name} already exists in {destination.parent}! Move has been skipped. Continuing...")
+        print("Warning: f{name} already exists in {destination.parent}!\nMove has been skipped. Continuing...")
         continue
     
     #create destination folder if necessary
     if not destination.parent.exists():
-        print(f"Destination does not exist: {destination.parent.parent.name}/{destination.parent.name} \nCreating destination...", end="")
+        print(f"Destination does not exist: {destination.parent.parent.name}\\{destination.parent.name} \nCreating destination...", end="")
         destination.parent.mkdir(parents=True, exist_ok=False) #all intermediate folders are also created
         print("Done\n")
     
@@ -120,12 +125,12 @@ for p in paths:
         #destination.mkdir(parents=False, exist_ok=False)    
         copy_tree(str(source), str(destination), preserve_times=True)
         shutil.rmtree(source)
-        print(f"{name} has been moved")
+        print(f"{name} has been moved to" + str(shorten_path(destination.parent, base_dir)))
     
     #if name is a file, move it with shutil.move
     else:
         shutil.move(source, destination)
-        print(f"{name} has been moved")
+        print(f"{name} has been moved to " + str(shorten_path(destination.parent, base_dir)))
         
     #log the move
     changes_msg = current_time + " --- moved " + name + " in " + str(shorten_path(source.parent, base_dir)) + " to " + str(shorten_path(destination.parent, base_dir)) + "\n"

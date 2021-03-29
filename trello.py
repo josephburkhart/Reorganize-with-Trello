@@ -8,7 +8,7 @@ Functions for finding boards, lists, users, and for making cards in Trello
 from pathlib import Path
 import requests
 
-def find_board(board_name):
+def find_board(board_name, API_KEY, OATH_TOKEN):
     """Returns the ID that corresponds to the given board name"""
     print(f"Searching for board \'{board_name}\'...", end="")
     
@@ -28,7 +28,7 @@ def find_board(board_name):
         print("Error: board not found\n")
         return
 
-def find_list(board_id, list_name):
+def find_list(board_id, list_name, API_KEY, OATH_TOKEN):
     """Returns the ID that corresponds to a given list name and on a board with a given id"""
     print(f"Searching for list \'{list_name}\'...", end="")
     
@@ -48,7 +48,7 @@ def find_list(board_id, list_name):
         print("Error: list not found \n")
         return
     
-def find_members(members: list):
+def find_members(members: list, API_KEY, OATH_TOKEN):
     """Returns a list of IDs corresponding to a list of usernames"""
     member_ids = []         #list that will hold the member ids
     
@@ -77,7 +77,7 @@ def find_members(members: list):
     
     return member_ids
   
-def create_card(list_id, card_name, card_description, member_ids: list):
+def create_card(list_id, card_name, card_description, member_ids: list, API_KEY, OATH_TOKEN):
     """Makes a Trello card in the specified list, with a specified name and description"""
     print(f"Creating card \'{card_name}\'...", end="")
     
