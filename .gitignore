@@ -6,3 +6,4 @@ errors.log
 files.txt
 testdirectory1/
 testdirectory2/
+__pycache__/
