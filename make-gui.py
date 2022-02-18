@@ -41,7 +41,7 @@ class Table:
             self.tree.insert(parent='',index='end',text='name',values=(name,'',''),tags=('clickable'))   #TODO: make values dependent on number of columns
                                                                                                         #TODO: add a scrollbar
         # Add event handler to enable cell editing
-        self.tree.bind("<Double-1>", self.selectItem)
+        self.tree.bind("<Double-1>", self.onDoubleClick)
 
     def onDoubleClick(self, event):
         ''' Executed, when a row is double-clicked. Opens 
@@ -49,19 +49,19 @@ class Table:
         to select text '''
 
         # what row and column was clicked on    TODO: make this part not allow editing of paths in column 1
-        rowid = self.tree.identify_row(event.y)
-        column = self.tree.identify_column(event.x)
-        print(rowid)
+        row_id = self.tree.identify_row(event.y)
+        col_id = self.tree.identify_column(event.x)
+        col_num = int(col_id[1:]) #remove # and convert to int, to use for indexing 'values' below
 
         # get column position info
-        x,y,width,height = self.tree.bbox(rowid, column)
+        x,y,width,height = self.tree.bbox(row_id, col_id)
 
         # y-axis offset
         pady = height // 2
 
         # get text from current cell
-        text = self.tree.item(rowid, 'values')
-        self.entryPopup = EntryPopup(self.tree, rowid, text)
+        text = self.tree.item(row_id, 'values')[col_num-1]
+        self.entryPopup = EntryPopup(self.tree, row_id, text)
 
         # place Entry popup properly
         self.entryPopup.place( x=x, y=y+pady, width=width, height=height, anchor=W) #TODO: use relwidth param to make entrypopup size change dynamically with columns
