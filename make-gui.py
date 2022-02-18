@@ -24,21 +24,19 @@ class Table:
         self.column_widths = column_widths
         self.row_names = row_names
 
-        self.tree['columns']= tuple(self.column_names)
-        
-        # first column is hidden so all cell contents can be referenced using the values attribute
-        self.tree.column("#0", width=0,  stretch=NO)
-        self.tree.heading("#0",text="",anchor=CENTER)
+        # create columns and headings
+        self.tree['columns']= tuple(self.column_names[1:])  #used for indexing, first name omitted because it is always set to #0
 
-        # remaining columns
-        for i in range(len(self.column_names)):
-            print(self.column_names[i])
+        self.tree.column("#0", width=self.column_widths[0], stretch=YES)    # first column and heading must be separately defined
+        self.tree.heading("#0", text=self.column_names[0], anchor=CENTER)   # this column is special because it can be used to display a tree with nested elements
+
+        for i in range(1,len(self.column_names)):
             self.tree.column(self.column_names[i], width=self.column_widths[i], anchor=W, stretch=NO)
             self.tree.heading(self.column_names[i],text=self.column_names[i],anchor=CENTER)
 
         # Add Data
         for name in self.row_names:
-            self.tree.insert(parent='',index='end',text='name',values=(name,'',''),tags=('clickable'))   #TODO: make values dependent on number of columns
+            self.tree.insert(parent='',index='end',text=name,values=('',''),tags=('clickable'))   #TODO: make values dependent on number of columns
                                                                                                         #TODO: add a scrollbar
         # Add event handler to enable cell editing
         self.tree.bind("<Double-1>", self.onDoubleClick)
@@ -60,7 +58,12 @@ class Table:
         pady = height // 2
 
         # get text from current cell
-        text = self.tree.item(row_id, 'values')[col_num-1]
+        if col_id =='#0':
+            text = self.tree.item(row_id, 'text')
+        else:
+            text = self.tree.item(row_id, 'values')[col_num-1]
+        
+        # create entry popup
         self.entryPopup = EntryPopup(self.tree, row_id, col_num, text)
 
         # place Entry popup properly
@@ -99,13 +102,13 @@ class EntryPopup(Entry):
 
     def on_return(self, event):
         ''' Add the text in EntryPopup to the corresponding cell in parent'''
-        #Note: there has to be a more elegant way of modifying current row's values than calling item() twice
-        current_item = self.tv.item(self.iid)
-
-        values = current_item['values']
-        values[self.col_num-1] = self.get()
-        self.tv.item(self.iid, values=values)
-
+        if self.col_num == 0:                        #value for col 0 is in 'text'
+            self.tv.item(self.iid, text=self.get())
+        else:                                   #Note: there has to be a more elegant way of modifying current row's values than calling item() twice
+            current_item = self.tv.item(self.iid)
+            values = current_item['values']
+            values[self.col_num-1] = self.get()
+            self.tv.item(self.iid, values=values)
         self.destroy()
 
     def select_all(self, *ignore):
