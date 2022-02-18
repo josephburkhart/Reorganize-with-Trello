@@ -93,7 +93,8 @@ class EntryPopup(Entry):
         self.focus_force()
         self.bind("<Return>", self.on_return)
         self.bind("<Control-a>", self.select_all)
-        self.bind("<Escape>", lambda *ignore: self.destroy())
+        self.bind("<Escape>", lambda *ignore: self.destroy())   #destroy() accepts no arguments so anonymous function is necessary
+        self.bind("<FocusOut>", lambda *ignore: self.destroy()) #* means this will work for any number of potential arguments
 
     def on_return(self, event):
         self.tv.item(self.iid, text=self.get())
