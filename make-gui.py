@@ -14,12 +14,15 @@ def parse_text_file(file_path: Path):
     return lines
 
 class Table:
-    def __init__(self, parent, row_names):             #TODO: generalize the class with these params: column_names, column_widths
+    def __init__(self, parent, row_names, column_names, column_widths):
+        #Initialize Treeview
         self.tree = ttk.Treeview(parent)
         self.tree.pack(fill='x')
 
-        self.column_names = ['filename', 'flag', 'cat1']
-        self.column_widths = [150, 80, 80]
+        #Initialize instance attributes
+        self.column_names = column_names
+        self.column_widths = column_widths
+        self.row_names = row_names
 
         self.tree['columns']= tuple(self.column_names)
         
@@ -34,7 +37,6 @@ class Table:
             self.tree.heading(self.column_names[i],text=self.column_names[i],anchor=CENTER)
 
         # Add Data
-        self.row_names = row_names
         for name in self.row_names:
             self.tree.insert(parent='',index='end',text='name',values=(name,'',''),tags=('clickable'))   #TODO: make values dependent on number of columns
                                                                                                         #TODO: add a scrollbar
@@ -104,20 +106,21 @@ class EntryPopup(Entry):
         # returns 'break' to interrupt default key-bindings
         return 'break'
 
-# Create GUI
-
+# Initialize Data
 row_names = [
     "C:\\testdir\\testfile1.txt",
     "C:\\testdir\\testfile2.tex",
-    "C:\\testdir\\testfile3.py",
-
+    "C:\\testdir\\testfile3.py"
 ]
+column_names = ['filename', 'flag', 'cat1']
+column_widths = [250, 70, 80]
 
+# Create GUI
 ROOT=Tk()
 
 ROOT.title('Reorganize with Trello')
 ROOT.geometry('500x500')
 
-mytree = Table(ROOT, row_names)
+mytree = Table(ROOT, row_names, column_names, column_widths)
 
 ROOT.mainloop()
