@@ -61,7 +61,7 @@ class Table:
 
         # get text from current cell
         text = self.tree.item(row_id, 'values')[col_num-1]
-        self.entryPopup = EntryPopup(self.tree, row_id, text)
+        self.entryPopup = EntryPopup(self.tree, row_id, col_num, text)
 
         # place Entry popup properly
         self.entryPopup.place( x=x, y=y+pady, width=width, height=height, anchor=W) #TODO: use relwidth param to make entrypopup size change dynamically with columns
@@ -81,14 +81,15 @@ class Table:
 
 class EntryPopup(Entry):
 
-    def __init__(self, parent, iid, text, **kw):
+    def __init__(self, parent, iid, col_num, text, **kw):
         ''' If relwidth is set, then width is ignored '''
         super().__init__(parent, **kw)
         self.tv = parent
-        self.iid = iid
+        self.iid = iid          #this is just row_id
+        self.col_num = col_num
 
         self.insert(0, text) 
-        self['exportselection'] = False
+        self['exportselection'] = False #TODO: remove??
 
         self.focus_force()
         self.bind("<Return>", self.on_return)
@@ -97,7 +98,14 @@ class EntryPopup(Entry):
         self.bind("<FocusOut>", lambda *ignore: self.destroy()) #* means this will work for any number of potential arguments
 
     def on_return(self, event):
-        self.tv.item(self.iid, text=self.get())
+        ''' Add the text in EntryPopup to the corresponding cell in parent'''
+        #Note: there has to be a more elegant way of modifying current row's values than calling item() twice
+        current_item = self.tv.item(self.iid)
+
+        values = current_item['values']
+        values[self.col_num-1] = self.get()
+        self.tv.item(self.iid, values=values)
+
         self.destroy()
 
     def select_all(self, *ignore):
