@@ -40,6 +40,7 @@ class Table:
                                                                                                         #TODO: add a scrollbar
         # Add event handler to enable cell editing
         self.tree.bind("<Double-1>", self.onDoubleClick)
+        self.tree.bind("<Delete>", self.onDelete)
 
     def onDoubleClick(self, event):
         ''' Executed, when a row is double-clicked. Opens 
@@ -69,6 +70,12 @@ class Table:
         # place Entry popup properly
         self.entryPopup.place( x=x, y=y+pady, width=width, height=height, anchor=W) #TODO: use relwidth param to make entrypopup size change dynamically with columns
 
+    def onDelete(self, event):
+        '''deletes the currently selected rows'''
+        current_item3 = self.tree.selection()   #TODO: should I use tree.focus() instead?
+        print('deleting ', current_item3)
+        for item in current_item3:
+            self.tree.delete(item)
 
     def selectItem(self, event):
         '''gets information about the currently selected cell in treeview
