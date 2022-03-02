@@ -39,10 +39,10 @@ class Table:
             self.tree.insert(parent='',index='end',text=name,values=('',''),tags=('clickable'))   #TODO: make values dependent on number of columns
                                                                                                         #TODO: add a scrollbar
         # Add event handler to enable cell editing
-        self.tree.bind("<Double-1>", self.on_double_click)
-        self.tree.bind("<Delete>", self.on_delete)
+        self.tree.bind("<Double-1>", self.make_popup)
+        self.tree.bind("<Delete>", self.delete_rows)
 
-    def on_double_click(self, event):
+    def make_popup(self, event):
         ''' Executed, when a row is double-clicked. Opens 
         read-only EntryPopup above the item's column, so it is possible
         to select text '''
@@ -70,10 +70,10 @@ class Table:
         # place Entry popup properly
         self.entryPopup.place( x=x, y=y+pady, width=width, height=height, anchor=W) #TODO: use relwidth param to make entrypopup size change dynamically with columns
 
-    def on_delete(self, event):
+    def delete_rows(self, event):
         '''deletes the currently selected rows'''
-        current_item3 = self.tree.selection()   #TODO: should I use tree.focus() instead?
-        for item in current_item3:
+        current_items = self.tree.selection()   #TODO: should I use tree.focus() instead?
+        for item in current_items:
             self.tree.delete(item)
 
     def select_item(self, event):
