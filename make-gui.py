@@ -105,12 +105,12 @@ class EntryPopup(Entry):
         self['exportselection'] = False #TODO: remove??
 
         self.focus_force()
-        self.bind("<Return>", self.on_return)
+        self.bind("<Escape>", lambda *ignore: self.destroy())       #destroy() accepts no arguments so anonymous function is necessary
+        self.bind("<Return>", self.insert_text_and_destroy)         #* means this will work for any number of potential arguments
+        self.bind("<FocusOut>", self.insert_text_and_destroy)
         self.bind("<Control-a>", self.select_all)
-        self.bind("<Escape>", lambda *ignore: self.destroy())   #destroy() accepts no arguments so anonymous function is necessary
-        self.bind("<FocusOut>", lambda *ignore: self.destroy()) #* means this will work for any number of potential arguments
 
-    def on_return(self, event):
+    def insert_text_and_destroy(self, event):
         ''' Add the text in EntryPopup to the corresponding cell in parent'''
         if self.col_num == 0:                        #value for col 0 is in 'text'
             self.tv.item(self.iid, text=self.get())
