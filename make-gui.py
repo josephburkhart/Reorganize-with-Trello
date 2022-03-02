@@ -31,7 +31,10 @@ class Table:
         self.tree.column("#0", width=self.column_widths[0], stretch=YES)    # first column and heading must be separately defined
         self.tree.heading("#0", text=self.column_names[0], anchor=CENTER)   # this column is special because it can be used to display a tree with nested elements
 
-        for i in range(1,len(self.column_names)):
+        self.tree.column(self.column_names[1], width=self.column_widths[1], anchor=CENTER, stretch=YES)  # define flag column separately with center anchor
+        self.tree.heading(self.column_names[1],text=self.column_names[1],anchor=CENTER)
+
+        for i in range(2,len(self.column_names)):
             self.tree.column(self.column_names[i], width=self.column_widths[i], anchor=W, stretch=NO)
             self.tree.heading(self.column_names[i],text=self.column_names[i],anchor=CENTER)
 
