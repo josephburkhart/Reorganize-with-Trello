@@ -73,7 +73,6 @@ class Table:
     def onDelete(self, event):
         '''deletes the currently selected rows'''
         current_item3 = self.tree.selection()   #TODO: should I use tree.focus() instead?
-        print('deleting ', current_item3)
         for item in current_item3:
             self.tree.delete(item)
 
