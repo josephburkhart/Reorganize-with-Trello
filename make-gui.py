@@ -149,7 +149,7 @@ table = Table(ROOT, row_names, column_names, column_widths)
 bottomframe = Frame(ROOT)
 bottomframe.pack()
 
-# Save function
+# Save button
 def save_entries():
     #data = []   #TODO: better to make a class with the different attribute names
     with open('data.csv', 'w', newline='') as myfile:
@@ -163,5 +163,12 @@ def save_entries():
 
 save_button = Button(bottomframe,text="Save",command=save_entries)
 save_button.pack()
+
+# Exit button
+def exit_app():
+    ROOT.destroy()
+
+exit_button = Button(bottomframe, text="Exit", command=exit_app)
+exit_button.pack()
 
 ROOT.mainloop()
