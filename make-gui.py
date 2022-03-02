@@ -39,10 +39,10 @@ class Table:
             self.tree.insert(parent='',index='end',text=name,values=('',''),tags=('clickable'))   #TODO: make values dependent on number of columns
                                                                                                         #TODO: add a scrollbar
         # Add event handler to enable cell editing
-        self.tree.bind("<Double-1>", self.onDoubleClick)
-        self.tree.bind("<Delete>", self.onDelete)
+        self.tree.bind("<Double-1>", self.on_double_click)
+        self.tree.bind("<Delete>", self.on_delete)
 
-    def onDoubleClick(self, event):
+    def on_double_click(self, event):
         ''' Executed, when a row is double-clicked. Opens 
         read-only EntryPopup above the item's column, so it is possible
         to select text '''
@@ -70,13 +70,13 @@ class Table:
         # place Entry popup properly
         self.entryPopup.place( x=x, y=y+pady, width=width, height=height, anchor=W) #TODO: use relwidth param to make entrypopup size change dynamically with columns
 
-    def onDelete(self, event):
+    def on_delete(self, event):
         '''deletes the currently selected rows'''
         current_item3 = self.tree.selection()   #TODO: should I use tree.focus() instead?
         for item in current_item3:
             self.tree.delete(item)
 
-    def selectItem(self, event):
+    def select_item(self, event):
         '''gets information about the currently selected cell in treeview
         Ref: https://stackoverflow.com/questions/48268506/select-a-cell-in-tkinter-treeview-and-get-the-cell-data'''
         curItem = self.tree.item(self.tree.focus()) #this returns a dict, such as {'text': '', 'image': '', 'values': ['C:\\Users\\Joseph\\computer\\pythonsandbox\\ReorgKADTest\\make_key_selectfilestest.py', '', ''], 'open': 0, 'tags': ['clickable']}
