@@ -7,6 +7,7 @@ from pathlib import Path
 from tkinter import *
 from tkinter import ttk
 import numpy as np
+import csv
 
 def parse_text_file(file_path: Path):
     lines = file_path.read_text().splitlines()
@@ -139,6 +140,25 @@ ROOT=Tk()
 ROOT.title('Reorganize with Trello')
 ROOT.geometry('500x500')
 
-mytree = Table(ROOT, row_names, column_names, column_widths)
+table = Table(ROOT, row_names, column_names, column_widths)
+
+
+bottomframe = Frame(ROOT)
+bottomframe.pack()
+
+# Save function
+def save_entries():
+    #data = []   #TODO: better to make a class with the different attribute names
+    with open('data.csv', 'w', newline='') as myfile:
+        csvwriter = csv.writer(myfile, delimiter=',')
+    
+        for row_id in table.tree.get_children():
+            row = [table.tree.item(row_id)['text']]
+            row.extend(table.tree.item(row_id)['values'])
+            print('save row: ', row)
+            csvwriter.writerow(row)
+
+save_button = Button(bottomframe,text="Save",command=save_entries)
+save_button.pack()
 
 ROOT.mainloop()
