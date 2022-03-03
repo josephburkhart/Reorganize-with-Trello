@@ -128,47 +128,57 @@ class EntryPopup(Entry):
         # returns 'break' to interrupt default key-bindings
         return 'break'
 
-# Initialize Data
-row_names = [
-    "C:\\testdir\\testfile1.txt",
-    "C:\\testdir\\testfile2.tex",
-    "C:\\testdir\\testfile3.py"
-]
-column_names = ['filename', 'flag', 'cat1']
-column_widths = [250, 70, 80]
+class MainApplication:
+    def __init__(self, parent):
+        self.parent = parent
+        
+        # Initialize Data
+        self.row_names = [
+            "C:\\testdir\\testfile1.txt",
+            "C:\\testdir\\testfile2.tex",
+            "C:\\testdir\\testfile3.py"
+        ]
+        self.column_names = ['filename', 'flag', 'cat1']
+        self.column_widths = [250, 70, 80]
 
-# Create GUI
-ROOT=Tk()
+        # Create table
+        self.table = Table(self.parent, self.row_names, self.column_names, self.column_widths)
 
-ROOT.title('Reorganize with Trello')
-ROOT.geometry('500x500')
+        # Create frame
+        self.bottomframe = Frame(self.parent)
+        self.bottomframe.pack()
 
-table = Table(ROOT, row_names, column_names, column_widths)
+        # Create buttons
+        self.save_button = Button(self.bottomframe,text="Save",command=self.save_entries)
+        self.save_button.pack()
+        self.exit_button = Button(self.bottomframe, text="Exit", command=self.exit_app)
+        self.exit_button.pack()
 
+    def save_entries(self):
+        '''Export each entry in the table to a csv file 
+        (will be changed later to just return entries as a list of lists)'''
+        #data = []   #TODO: better to make a class with the different attribute names
+        with open('data.csv', 'w', newline='') as myfile:
+            csvwriter = csv.writer(myfile, delimiter=',')
+        
+            for row_id in self.table.tree.get_children():
+                row = [self.table.tree.item(row_id)['text']]        #first column
+                row.extend(self.table.tree.item(row_id)['values'])  #remaining columns
+                print('save row: ', row)
+                csvwriter.writerow(row)
 
-bottomframe = Frame(ROOT)
-bottomframe.pack()
+    def exit_app(self):
+        '''Close the main window'''
+        self.parent.destroy()
 
-# Save button
-def save_entries():
-    #data = []   #TODO: better to make a class with the different attribute names
-    with open('data.csv', 'w', newline='') as myfile:
-        csvwriter = csv.writer(myfile, delimiter=',')
-    
-        for row_id in table.tree.get_children():
-            row = [table.tree.item(row_id)['text']]
-            row.extend(table.tree.item(row_id)['values'])
-            print('save row: ', row)
-            csvwriter.writerow(row)
+if __name__ == "__main__":
+    # Initialize main window
+    root=Tk()
+    root.title('Reorganize with Trello')
+    root.geometry('500x500')
 
-save_button = Button(bottomframe,text="Save",command=save_entries)
-save_button.pack()
+    # Create GUI
+    MainApplication(root)
 
-# Exit button
-def exit_app():
-    ROOT.destroy()
-
-exit_button = Button(bottomframe, text="Exit", command=exit_app)
-exit_button.pack()
-
-ROOT.mainloop()
+    # Run application
+    root.mainloop()
