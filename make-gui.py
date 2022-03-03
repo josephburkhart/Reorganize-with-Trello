@@ -39,8 +39,9 @@ class Table:
             self.tree.heading(self.column_names[i],text=self.column_names[i],anchor=CENTER)
 
         # Add Data
+        self.default_values = tuple('' for name in range(1,len(column_names)))
         for name in self.row_names:
-            self.tree.insert(parent='',index='end',text=name,values=('',''),tags=('clickable'))   #TODO: make values dependent on number of columns
+            self.tree.insert(parent='',index='end',text=name,values=self.default_values,tags=('clickable'))
                                                                                                         #TODO: add a scrollbar
         # Add event handler to enable cell editing
         self.tree.bind("<Double-1>", self.make_popup)
