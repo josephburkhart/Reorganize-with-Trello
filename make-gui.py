@@ -98,7 +98,7 @@ class EntryPopup(tk.Entry):
     def __init__(self, parent, iid, col_num, text, **kw):
         ''' If relwidth is set, then width is ignored '''
         super().__init__(parent, **kw)
-        self.tv = parent
+        self.parent = parent
         self.iid = iid          #this is just row_id
         self.col_num = col_num
 
@@ -114,12 +114,12 @@ class EntryPopup(tk.Entry):
     def insert_text_and_destroy(self, event):
         ''' Add the text in EntryPopup to the corresponding cell in parent'''
         if self.col_num == 0:                        #value for col 0 is in 'text'
-            self.tv.item(self.iid, text=self.get())
+            self.parent.item(self.iid, text=self.get())
         else:                                   #Note: there has to be a more elegant way of modifying current row's values than calling item() twice
-            current_item = self.tv.item(self.iid)
+            current_item = self.parent.item(self.iid)
             values = current_item['values']
             values[self.col_num-1] = self.get()
-            self.tv.item(self.iid, values=values)
+            self.parent.item(self.iid, values=values)
         self.destroy()
 
     def select_all(self, *ignore):
