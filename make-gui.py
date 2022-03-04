@@ -157,14 +157,14 @@ class MainApplication:
         self.scrollbar.grid(row=0, column=2, sticky='ns')
         self.table.tree.configure(yscrollcommand=self.scrollbar.set)
 
-        # Create bottom frame
-        self.bottomframe = tk.Frame(self.parent)
-        self.bottomframe.grid(row=1, column=0, columnspan=2)
+        # Create button frame
+        self.buttonframe = tk.Frame(self.parent)
+        self.buttonframe.grid(row=1, column=0, columnspan=2)
 
         # Create buttons
-        self.save_button = tk.Button(self.bottomframe,text="Save",command=self.save_entries)
+        self.save_button = tk.Button(self.buttonframe,text="Save",command=self.save_entries)
         self.save_button.grid(row=1, column=0)
-        self.exit_button = tk.Button(self.bottomframe, text="Exit", command=self.exit_app)
+        self.exit_button = tk.Button(self.buttonframe, text="Exit", command=self.exit_app)
         self.exit_button.grid(row=1, column=1)
 
     def save_entries(self):
