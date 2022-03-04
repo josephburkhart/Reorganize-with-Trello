@@ -142,9 +142,9 @@ class MainApplication:
             "C:\\testdir\\testfile2.tex",
             "C:\\testdir\\testfile3.py"
         ]
-        self.column_names = ['filename', 'flag', 'cat1']
-        self.column_widths = [250, 70, 80]
-
+        self.column_names = ['filename', 'flag', 'cat1', 'cat2', 'cat3 (opt.)']
+        self.column_widths = [250, 35, 80, 80, 80]
+        
         # Create table frame
         self.tableframe = tk.Frame(self.parent)
         self.tableframe.grid(row=0, column=0, columnspan=2, sticky='n')
