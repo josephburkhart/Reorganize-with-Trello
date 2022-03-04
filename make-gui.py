@@ -17,7 +17,7 @@ class Table:
     def __init__(self, parent, row_names, column_names, column_widths):
         #Initialize Treeview
         self.tree = ttk.Treeview(parent)
-        self.tree.grid(row=0, column=0)
+        self.tree.grid(row=0, column=0, columnspan=2, sticky='n')
 
         #Initialize instance attributes
         self.column_names = column_names
@@ -145,8 +145,11 @@ class MainApplication:
         self.column_names = ['filename', 'flag', 'cat1']
         self.column_widths = [250, 70, 80]
 
-        # Create table
-        self.table = Table(self.parent, self.row_names, self.column_names, self.column_widths)
+        # Create table (note that packing of table happens inside the class - could be brought outside if Table was subclass of Treeview)
+        self.tableframe = tk.Frame(self.parent)
+        self.tableframe.grid(row=0, column=0, columnspan=2, sticky='n')
+        
+        self.table = Table(self.tableframe, self.row_names, self.column_names, self.column_widths)
 
         # Create frame
         self.bottomframe = tk.Frame(self.parent)
