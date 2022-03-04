@@ -15,22 +15,22 @@ def parse_text_file(file_path: Path):
 
 class Table:
     def __init__(self, parent, row_names, column_names, column_widths):
-        #Initialize Treeview
+        # Initialize Treeview
         self.tree = ttk.Treeview(parent)
         self.tree.grid(row=0, column=0, columnspan=2, sticky='n')
 
-        #Initialize instance attributes
+        # Initialize instance attributes
         self.column_names = column_names
         self.column_widths = column_widths
         self.row_names = row_names
 
-        # create columns and headings
+        # Create columns and headings
         self.tree['columns']= tuple(self.column_names[1:])  #used for indexing, first name omitted because it is always set to #0
 
-        self.tree.column("#0", width=self.column_widths[0], stretch='yes')    # first column and heading must be separately defined
-        self.tree.heading("#0", text=self.column_names[0], anchor='center')   # this column is special because it can be used to display a tree with nested elements
+        self.tree.column("#0", width=self.column_widths[0], stretch='yes')    #first column and heading must be separately defined
+        self.tree.heading("#0", text=self.column_names[0], anchor='center')   #this column is special because it can be used to display a tree with nested elements
 
-        self.tree.column(self.column_names[1], width=self.column_widths[1], anchor='center', stretch='yes')  # define flag column separately with center anchor
+        self.tree.column(self.column_names[1], width=self.column_widths[1], anchor='center', stretch='yes')  #define flag column separately with center anchor
         self.tree.heading(self.column_names[1],text=self.column_names[1],anchor='center')
 
         for i in range(2,len(self.column_names)):
@@ -51,30 +51,30 @@ class Table:
         read-only EntryPopup above the item's column, so it is possible
         to select text '''
 
-        # what row and column was clicked on    TODO: make this part not allow editing of paths in column 1
+        # What row and column was clicked on    TODO: make this part not allow editing of paths in column 1
         row_id = self.tree.identify_row(event.y)
         col_id = self.tree.identify_column(event.x)
-        col_num = int(col_id[1:]) #remove # and convert to int, to use for indexing 'values' below
+        col_num = int(col_id[1:])                   #remove # and convert to int, to use for indexing 'values' below
 
-        # get column position info
+        # Get column position info
         x,y,width,height = self.tree.bbox(row_id, col_id)
 
-        # y-axis offset
+        # Y-axis offset
         pady = height // 2
 
-        # get text from current cell
+        # Get text from current cell
         if col_id =='#0':
             text = self.tree.item(row_id, 'text')
         else:
             text = self.tree.item(row_id, 'values')[col_num-1]
         
-        # create entry popup
+        # Create entry popup
         self.entryPopup = EntryPopup(self.tree, row_id, col_num, text)
 
-        # place Entry popup properly
+        # Place Entry popup properly
         self.entryPopup.place( x=x, y=y+pady, width=width, height=height, anchor='w') #TODO: use relwidth param to make entrypopup size change dynamically with columns
 
-        # make text entry for the flag column centered
+        # Make text entry for the flag column centered
         if col_id == "#1":
             self.entryPopup['justify'] = 'center'
 
@@ -87,9 +87,9 @@ class Table:
     def select_item(self, event):
         '''gets information about the currently selected cell in treeview
         Ref: https://stackoverflow.com/questions/48268506/select-a-cell-in-tkinter-treeview-and-get-the-cell-data'''
-        curItem = self.tree.item(self.tree.focus()) #this returns a dict, such as {'text': '', 'image': '', 'values': ['C:\\Users\\Joseph\\computer\\pythonsandbox\\ReorgKADTest\\make_key_selectfilestest.py', '', ''], 'open': 0, 'tags': ['clickable']}
+        curItem = self.tree.item(self.tree.focus()) #this returns a dict, such as {'text': '', 'image': '', 'values': ['', '', ''], 'open': 0, 'tags': ['clickable']}
         col = self.tree.identify_column(event.x)
-        col_num = int(col[1:]) #remove the # symbol
+        col_num = int(col[1:])                      #remove the # symbol
         print ('curItem = ', curItem)
         print ('col_num = ', col_num)
 
@@ -129,7 +129,7 @@ class EntryPopup(tk.Entry):
         ''' Set selection on the whole text '''
         self.selection_range(0, 'end')
 
-        # returns 'break' to interrupt default key-bindings
+        # Return 'break' to interrupt default key-bindings
         return 'break'
 
 class MainApplication:
