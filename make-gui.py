@@ -145,13 +145,19 @@ class MainApplication:
         self.column_names = ['filename', 'flag', 'cat1']
         self.column_widths = [250, 70, 80]
 
-        # Create table (note that packing of table happens inside the class - could be brought outside if Table was subclass of Treeview)
+        # Create table frame
         self.tableframe = tk.Frame(self.parent)
         self.tableframe.grid(row=0, column=0, columnspan=2, sticky='n')
         
+        # Create table (note that packing of table happens inside the class - could be brought outside if Table was a subclass of ttk.Treeview)
         self.table = Table(self.tableframe, self.row_names, self.column_names, self.column_widths)
 
-        # Create frame
+        # Create scrollbar
+        self.scrollbar = ttk.Scrollbar(self.tableframe, orient='vertical', command=self.table.tree.yview)
+        self.scrollbar.grid(row=0, column=2, sticky='ns')
+        self.table.tree.configure(yscrollcommand=self.scrollbar.set)
+
+        # Create bottom frame
         self.bottomframe = tk.Frame(self.parent)
         self.bottomframe.grid(row=1, column=0, columnspan=2)
 
