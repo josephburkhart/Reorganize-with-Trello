@@ -6,7 +6,6 @@
 from pathlib import Path
 import tkinter as tk
 from tkinter import ttk
-import numpy as np
 import csv
 
 def parse_text_file(file_path: Path):
