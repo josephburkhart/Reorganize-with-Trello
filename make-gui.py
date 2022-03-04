@@ -184,6 +184,10 @@ if __name__ == "__main__":
     root.title('Reorganize with Trello')
     root.geometry('500x500')
 
+    # Enable resizing of main window contents - https://stackoverflow.com/questions/60954478/tkinter-treeview-doesnt-resize-with-window
+    root.grid_rowconfigure(0, weight=1)
+    root.grid_columnconfigure(0, weight=1)
+
     # Create GUI
     MainApplication(root)
 
