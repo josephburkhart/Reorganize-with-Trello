@@ -144,7 +144,7 @@ class MainApplication:
         ]
         self.column_names = ['filename', 'flag', 'cat1', 'cat2', 'cat3 (opt.)']
         self.column_widths = [250, 35, 80, 80, 80]
-        
+
         # Create table frame
         self.tableframe = tk.Frame(self.parent)
         self.tableframe.grid(row=0, column=0, columnspan=2, sticky='n')
@@ -188,7 +188,7 @@ if __name__ == "__main__":
     # Initialize main window
     root=tk.Tk()
     root.title('Reorganize with Trello')
-    root.geometry('500x500')
+    root.geometry('545x500')
 
     # Enable resizing of main window contents - https://stackoverflow.com/questions/60954478/tkinter-treeview-doesnt-resize-with-window
     root.grid_rowconfigure(0, weight=1)
