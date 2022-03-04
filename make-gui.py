@@ -27,15 +27,15 @@ class Table:
         # create columns and headings
         self.tree['columns']= tuple(self.column_names[1:])  #used for indexing, first name omitted because it is always set to #0
 
-        self.tree.column("#0", width=self.column_widths[0], stretch=tk.YES)    # first column and heading must be separately defined
-        self.tree.heading("#0", text=self.column_names[0], anchor=tk.CENTER)   # this column is special because it can be used to display a tree with nested elements
+        self.tree.column("#0", width=self.column_widths[0], stretch='yes')    # first column and heading must be separately defined
+        self.tree.heading("#0", text=self.column_names[0], anchor='center')   # this column is special because it can be used to display a tree with nested elements
 
-        self.tree.column(self.column_names[1], width=self.column_widths[1], anchor=tk.CENTER, stretch=tk.YES)  # define flag column separately with center anchor
-        self.tree.heading(self.column_names[1],text=self.column_names[1],anchor=tk.CENTER)
+        self.tree.column(self.column_names[1], width=self.column_widths[1], anchor='center', stretch='yes')  # define flag column separately with center anchor
+        self.tree.heading(self.column_names[1],text=self.column_names[1],anchor='center')
 
         for i in range(2,len(self.column_names)):
-            self.tree.column(self.column_names[i], width=self.column_widths[i], anchor=tk.W, stretch=tk.NO)
-            self.tree.heading(self.column_names[i],text=self.column_names[i],anchor=tk.CENTER)
+            self.tree.column(self.column_names[i], width=self.column_widths[i], anchor='w', stretch='no')
+            self.tree.heading(self.column_names[i],text=self.column_names[i],anchor='center')
 
         # Add Data
         self.default_values = tuple('' for name in range(1,len(column_names)))
@@ -72,7 +72,7 @@ class Table:
         self.entryPopup = EntryPopup(self.tree, row_id, col_num, text)
 
         # place Entry popup properly
-        self.entryPopup.place( x=x, y=y+pady, width=width, height=height, anchor=tk.W) #TODO: use relwidth param to make entrypopup size change dynamically with columns
+        self.entryPopup.place( x=x, y=y+pady, width=width, height=height, anchor='w') #TODO: use relwidth param to make entrypopup size change dynamically with columns
 
         # make text entry for the flag column centered
         if col_id == "#1":
