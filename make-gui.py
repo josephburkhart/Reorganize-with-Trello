@@ -74,6 +74,10 @@ class Table:
         # place Entry popup properly
         self.entryPopup.place( x=x, y=y+pady, width=width, height=height, anchor=tk.W) #TODO: use relwidth param to make entrypopup size change dynamically with columns
 
+        # make text entry for the flag column centered
+        if col_id == "#1":
+            self.entryPopup['justify'] = 'center'
+
     def delete_rows(self, event):
         '''deletes the currently selected rows'''
         current_items = self.tree.selection()   #TODO: should I use tree.focus() instead?
