@@ -17,7 +17,7 @@ class Table:
     def __init__(self, parent, row_names, column_names, column_widths):
         #Initialize Treeview
         self.tree = ttk.Treeview(parent)
-        self.tree.pack(fill='x')
+        self.tree.grid(row=0, column=0)
 
         #Initialize instance attributes
         self.column_names = column_names
@@ -150,13 +150,13 @@ class MainApplication:
 
         # Create frame
         self.bottomframe = tk.Frame(self.parent)
-        self.bottomframe.pack()
+        self.bottomframe.grid(row=1, column=0, columnspan=2)
 
         # Create buttons
         self.save_button = tk.Button(self.bottomframe,text="Save",command=self.save_entries)
-        self.save_button.pack()
+        self.save_button.grid(row=1, column=0)
         self.exit_button = tk.Button(self.bottomframe, text="Exit", command=self.exit_app)
-        self.exit_button.pack()
+        self.exit_button.grid(row=1, column=1)
 
     def save_entries(self):
         '''Export each entry in the table to a csv file 
