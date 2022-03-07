@@ -62,6 +62,11 @@ def move(source: Path, destination: Path):
         print(f"{name} has been moved to " + str(shorten_path(destination.parent, base_dir)))
     return 0
 
+def log_message(log_file_path, time, message):
+    '''Write a timestamped message to a logfile'''
+    with log_file_path.open(mode='a') as log_file:
+            log_file.write(time + ' --- ' + message)
+
 # Handle Command Line Arguments
 num_args = 3        #expected number of arguments
 #args = sys.argv[1:]   #preserve the list of arguments in a non-global object
@@ -140,7 +145,6 @@ for p in paths:
     move(source, destination)
         
     #log the move
-    changes_msg = current_time + " --- moved " + name + " in " + str(shorten_path(source.parent, base_dir)) + " to " + str(shorten_path(destination.parent, base_dir)) + "\n"
-    with changes_log_path.open(mode='a') as log_file:
-        log_file.write(changes_msg)
+    changes_msg = "moved " + name + " in " + str(shorten_path(source.parent, base_dir)) + " to " + str(shorten_path(destination.parent, base_dir)) + "\n"
+    log_message(changes_log_path, current_time, changes_msg)
     
