@@ -8,10 +8,13 @@ import tkinter as tk
 from tkinter import ttk
 import csv
 
-def parse_text_file(file_path: Path):
-    lines = file_path.read_text().splitlines()
-    lines = [Path(line[1:-1]) for line in lines] #we want substrings in order to remove quotation marks
-    return lines
+def list_dirs(current_dir: Path):
+    '''Returns a list of the absolute paths of the items in current_dir,
+    with directories before files'''
+    dirs = [p for p in current_dir.iterdir() if p.is_dir()]
+    files = [p for p in current_dir.iterdir() if p.is_file()]
+    contents = dirs + files
+    return contents
 
 class Table:
     def __init__(self, parent, row_names, column_names, column_widths):
