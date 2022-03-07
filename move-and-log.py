@@ -103,7 +103,7 @@ paths = [Path(p) for p in paths]            #turn strings into path objects
 
 # Compose data structure
 TableEntry = namedtuple("TableEntry", 'filepath flag cat1 cat2 cat3 issue')
-tableentries = (NamedTuple(p, data_stream, data_type) for p in paths)
+tableentries = (TableEntry(p, '', data_stream, data_type, '', '') for p in paths)
 
 #Find trello ids
 board_id = trello.find_board(BOARD_NAME, API_KEY, OATH_TOKEN)
@@ -111,14 +111,14 @@ list_id = trello.find_list(board_id, LIST_NAME, API_KEY, OATH_TOKEN)
 member_ids = trello.find_members(USER_NAMES, API_KEY, OATH_TOKEN)
 
 # Move the files and write to log
-for p in paths:
+for e in tableentries:
     #get currrent time (used in log messages)
     current_time = time.strftime('%Y-%m-%d %H:%M:%S %z', time.localtime(time.time()))
     
     #paths for movement
-    name = str(p.name)
-    source = p         
-    destination = base_dir / reorg_dir / data_stream / data_type / name
+    name = str(e.filepath.name)
+    source = e.filepath         
+    destination = base_dir / reorg_dir / e.cat1 / e.cat2 / name
     
     #check for error flag
     if "!" in name[-2:]:
