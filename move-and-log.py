@@ -87,13 +87,6 @@ def log_message(log_file_path, time, message):
     with log_file_path.open(mode='a') as log_file:
             log_file.write(time + ' --- ' + message)
 
-# Handle Command Line Arguments
-num_args = 3        #expected number of arguments
-#args = sys.argv[1:]   #preserve the list of arguments in a non-global object
-args = ["files.txt", "Conventional", "Daily-Journaling"]
-if len(args) != num_args:
-    raise SystemExit(f"Usage: {sys.argv[0]} requires {num_args} arguments") 
-
 # Configuration
 credentials_path = Path.cwd() / 'trello-key-and-token-test.txt'  #text file with api key and oath token for bot's Trello account
 credentials = credentials_path.read_text().split(',')
