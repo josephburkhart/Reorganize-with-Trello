@@ -30,15 +30,47 @@ def shorten_path(full_path, base_dir: str):    #ref: https://stackoverflow.com/q
     base_index = path_parts.index(base_dir.name)
     return Path(*path_parts[base_index:])    # * expands the tuple into a flat comma separated params
 
+def move(source: Path, destination: Path):
+    '''Moves specified item at source path to destination path,
+    printing messages to the console as needed'''
+    # Check if the named file/directory exists
+    if not source.exists():
+        print(f"Warning: {source.name} does not exist in {source.parent}\nMove has been skipped. Continuing...")
+        return
+    
+    # Check if there is a duplicate file/directory at the destination
+    if destination.exists():
+        print("Warning: f{source.name} already exists in {destination.parent}!\nMove has been skipped. Continuing...")
+        return
+    
+    # Create destination folder if necessary
+    if not destination.parent.exists():
+        print(f"Destination does not exist: {destination.parent.parent.name}\\{destination.parent.name} \nCreating destination...", end="")
+        destination.parent.mkdir(parents=True, exist_ok=False) #all intermediate folders are also created
+        print("Done\n")
+    
+    # If name is a directory, move it with copy_tree 
+    if source.is_dir():
+        #destination.mkdir(parents=False, exist_ok=False)    
+        copy_tree(str(source), str(destination), preserve_times=True)
+        shutil.rmtree(source)
+        print(f"{name} has been moved to" + str(shorten_path(destination.parent, base_dir)))
+    
+    # If name is a file, move it with shutil.move
+    else:
+        shutil.move(source, destination)
+        print(f"{name} has been moved to " + str(shorten_path(destination.parent, base_dir)))
+    return 0
+
 # Handle Command Line Arguments
 num_args = 3        #expected number of arguments
 #args = sys.argv[1:]   #preserve the list of arguments in a non-global object
-args = ["files2.txt", "Conventional", "Daily-Journaling"]
+args = ["files.txt", "Conventional", "Daily-Journaling"]
 if len(args) != num_args:
     raise SystemExit(f"Usage: {sys.argv[0]} requires {num_args} arguments") 
 
 # Configuration
-credentials_path = Path.cwd() / 'trello-key-and-token.txt'  #text file with api key and oath token for bot's Trello account
+credentials_path = Path.cwd() / 'trello-key-and-token-test.txt'  #text file with api key and oath token for bot's Trello account
 credentials = credentials_path.read_text().split(',')
 
 API_KEY = credentials[1]
@@ -105,32 +137,7 @@ for p in paths:
         continue
     
     #check if the named file/directory exists
-    if not p.exists():
-        print(f"Warning: {name} does not exist in {source.parent}\nMove has been skipped. Continuing...")
-        continue
-    
-    #check if there is a duplicate file/directory at the destination
-    if destination.exists():
-        print("Warning: f{name} already exists in {destination.parent}!\nMove has been skipped. Continuing...")
-        continue
-    
-    #create destination folder if necessary
-    if not destination.parent.exists():
-        print(f"Destination does not exist: {destination.parent.parent.name}\\{destination.parent.name} \nCreating destination...", end="")
-        destination.parent.mkdir(parents=True, exist_ok=False) #all intermediate folders are also created
-        print("Done\n")
-    
-    #if name is a directory, move it with copy_tree 
-    if source.is_dir():
-        #destination.mkdir(parents=False, exist_ok=False)    
-        copy_tree(str(source), str(destination), preserve_times=True)
-        shutil.rmtree(source)
-        print(f"{name} has been moved to" + str(shorten_path(destination.parent, base_dir)))
-    
-    #if name is a file, move it with shutil.move
-    else:
-        shutil.move(source, destination)
-        print(f"{name} has been moved to " + str(shorten_path(destination.parent, base_dir)))
+    move(source, destination)
         
     #log the move
     changes_msg = current_time + " --- moved " + name + " in " + str(shorten_path(source.parent, base_dir)) + " to " + str(shorten_path(destination.parent, base_dir)) + "\n"
