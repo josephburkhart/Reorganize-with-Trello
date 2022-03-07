@@ -17,7 +17,7 @@ In order to work, the following must be in the cwd:
 """
 from pathlib import Path
 import requests
-#import sys
+from collections import namedtuple
 from distutils.dir_util import copy_tree
 import shutil
 import time 
@@ -100,6 +100,10 @@ data_type = args[2]      #second organizational tier
 # Path Data
 paths = files_path.read_text().splitlines()     #names of files to move - TODO: remove blank lines
 paths = [Path(p) for p in paths]            #turn strings into path objects
+
+# Compose data structure
+TableEntry = namedtuple("TableEntry", 'filepath flag cat1 cat2 cat3 issue')
+tableentries = (NamedTuple(p, data_stream, data_type) for p in paths)
 
 #Find trello ids
 board_id = trello.find_board(BOARD_NAME, API_KEY, OATH_TOKEN)
