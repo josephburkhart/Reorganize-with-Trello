@@ -62,6 +62,26 @@ def move(source: Path, destination: Path):
         print(f"{name} has been moved to " + str(shorten_path(destination.parent, base_dir)))
     return 0
 
+def move_message(table_entry):
+    '''Compose a message describing the movement'''
+    name = table_entry.filepath.name
+    short_source_parent = str(shorten_path(source.parent, base_dir))    #<--
+    short_dest_parent = str(shorten_path(destination.parent, base_dir))    #<--
+    move_msg = f"moved {table_entry.filepath.name} in {short_source_parent} to {short_dest_parent}\n"
+    return move_msg
+
+def error_message(table_entry):
+    '''Compose a message describing the movement error'''
+    print(f"Issue found at {table_entry.filepath}") #better if this were a data structure
+    
+    # Determine the type of issue
+    issues = {'d': 'Duplicate', 'u': 'Unclear'}
+    issue_type = issues.get(table_entry.flag, 'Issue') #returns 'Issue' if flag is not 'd' or 'u'
+    
+    # Compose error message
+    error_msg = issue_type + ": " + table_entry.filepath + " in " + str(shorten_path(source.parent, base_dir)) #<--
+    return error_msg
+
 def log_message(log_file_path, time, message):
     '''Write a timestamped message to a logfile'''
     with log_file_path.open(mode='a') as log_file:
@@ -120,35 +140,19 @@ for e in tableentries:
     source = e.filepath         
     destination = base_dir / reorg_dir / e.cat1 / e.cat2 / name
     
-    #check for error flag
-    if "!" in name[-2:]:
-        print(f"Issue found at {name[:name.index('!')]}")
-        
-        #Determine the type of issue
-        if name[-1] == "d":
-            issue_type = "Duplicate"
-            
-        elif name[-1] == "u":
-            issue_type = "Unclear"
-            
-        else:
-            issue_type = "Issue"
-        
-        #make an issue card
-        card_name = issue_type + ": " + name[:name.index('!')] + " in " + str(shorten_path(source.parent, base_dir))
+    if e.flag == '':
+        # Move and log
+        move(source=e.filepath, destination=destination) #need to make exception for when cat3 does not exist
+        msg = move_message(table_entry=e)
+        log_message(log_file_path=changes_log_path, time=current_time, message=msg)
+
+    else:
+        # Log the error
+        msg = error_message(table_entry=e)
+        log_message(log_file_path=errors_log_path, time=current_time, message=msg)
+
+        # Make an issue card
+        card_name = error_message   # TODO: need shorten_dir here?
         card_description = ""
         trello.create_card(list_id, card_name, card_description, member_ids, API_KEY, OATH_TOKEN) #TODO: make card_description an optional argument
-        
-        #log the error
-        error_msg = current_time + " --- " + card_name + "\n"
-        with errors_log_path.open(mode='a') as log_file:
-            log_file.write(error_msg)
-        continue
-    
-    #check if the named file/directory exists
-    move(source, destination)
-        
-    #log the move
-    changes_msg = "moved " + name + " in " + str(shorten_path(source.parent, base_dir)) + " to " + str(shorten_path(destination.parent, base_dir)) + "\n"
-    log_message(changes_log_path, current_time, changes_msg)
     
