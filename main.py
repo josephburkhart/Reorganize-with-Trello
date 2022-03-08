@@ -3,6 +3,12 @@
 # Ref: https://pythonguides.com/python-tkinter-table-tutorial/
 # Ref: https://stackoverflow.com/questions/18562123/how-to-make-ttk-treeviews-rows-editable
 
+# To Do:
+#   modify code to accommodate cat3
+#   consider where to put configuration code - before button click or after?
+#   have a function quickly check to see if all entries actually exist when button is clicked
+#   remove unnecessary imports in main and modules
+
 from pathlib import Path
 import tkinter as tk
 from tkinter import ttk
