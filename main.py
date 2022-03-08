@@ -237,7 +237,6 @@ class MainApplication:
             destination = base_dir / reorg_dir / e.cat1 / e.cat2 / name
             
             if e.flag == '':
-                print('here')
                 # Move and log
                 move_and_log.move(source=e.filepath, destination=destination, base_dir=base_dir) #TODO: make exception for when cat3 does not exist
                 msg = move_and_log.move_message(table_entry=e, destination=destination, base_dir=base_dir)
