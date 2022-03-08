@@ -20,7 +20,7 @@ from distutils.dir_util import copy_tree
 import shutil
 
 # Functions
-def shorten_path(full_path, base_dir: str):    #ref: https://stackoverflow.com/questions/53255659/from-pathlib-parts-tuple-to-string-path
+def shorten_path(full_path, base_dir: Path):    #ref: https://stackoverflow.com/questions/53255659/from-pathlib-parts-tuple-to-string-path
     """Split the path into separate parts, select all elements after and including base_dir, and join them back together"""
     path_parts = full_path.parts
     base_index = path_parts.index(base_dir.name)
@@ -58,16 +58,18 @@ def move(source: Path, destination: Path, base_dir: Path):
         print(f"{source.name} has been moved to " + str(shorten_path(destination.parent, base_dir)))
     return 0
 
-def move_message(table_entry, destination, base_dir):
-    '''Compose a message describing the movement'''
+def move_message(table_entry, destination: Path, base_dir: Path):
+    '''Compose a message describing the movement
+    Note that table_entry must have the following attributes: filepath'''
     source = table_entry.filepath
     short_source = shorten_path(source, base_dir)    #<--
     short_dest = shorten_path(destination, base_dir)    #<--
     move_msg = f"moved {table_entry.filepath.name} in {short_source.parent} to {short_dest.parent}\n"
     return move_msg
 
-def error_message(table_entry, base_dir):
-    '''Compose a message describing the movement error'''
+def error_message(table_entry, base_dir: Path):
+    '''Compose a message describing the movement error
+    Note that table_entry must have the following attributes: filepath, flag'''
     print(f"Issue found at {table_entry.filepath}") #better if this were a data structure
     
     # Determine the type of issue
@@ -80,7 +82,7 @@ def error_message(table_entry, base_dir):
     error_msg = issue_type + ": " + str(table_entry.filepath.name) + " in " + short_source_parent #<--
     return error_msg
 
-def log_message(log_file_path, time, message):
+def log_message(log_file_path: Path, time, message):
     '''Write a timestamped message to a logfile'''
     with log_file_path.open(mode='a') as log_file:
             log_file.write(time + ' --- ' + message)
