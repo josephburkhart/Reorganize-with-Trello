@@ -20,7 +20,7 @@ from distutils.dir_util import copy_tree
 import shutil
 
 # Functions
-def shorten_path(full_path, base_dir: Path):    #ref: https://stackoverflow.com/questions/53255659/from-pathlib-parts-tuple-to-string-path
+def shorten_path(full_path: Path, base_dir: Path):    #ref: https://stackoverflow.com/questions/53255659/from-pathlib-parts-tuple-to-string-path
     """Split the path into separate parts, select all elements after and including base_dir, and join them back together"""
     path_parts = full_path.parts
     base_index = path_parts.index(base_dir.name)
