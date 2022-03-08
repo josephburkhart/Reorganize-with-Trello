@@ -30,7 +30,7 @@ def shorten_path(full_path, base_dir: str):    #ref: https://stackoverflow.com/q
     base_index = path_parts.index(base_dir.name)
     return Path(*path_parts[base_index:])    # * expands the tuple into a flat comma separated params
 
-def move(source: Path, destination: Path):
+def move(source: Path, destination: Path, base_dir: Path):
     '''Moves specified item at source path to destination path,
     printing messages to the console as needed'''
     # Check if the named file/directory exists
@@ -54,23 +54,23 @@ def move(source: Path, destination: Path):
         #destination.mkdir(parents=False, exist_ok=False)    
         copy_tree(str(source), str(destination), preserve_times=True)
         shutil.rmtree(source)
-        print(f"{name} has been moved to" + str(shorten_path(destination.parent, base_dir)))
+        print(f"{source.name} has been moved to" + str(shorten_path(destination.parent, base_dir)))
     
     # If name is a file, move it with shutil.move
     else:
         shutil.move(source, destination)
-        print(f"{name} has been moved to " + str(shorten_path(destination.parent, base_dir)))
+        print(f"{source.name} has been moved to " + str(shorten_path(destination.parent, base_dir)))
     return 0
 
-def move_message(table_entry):
+def move_message(table_entry, destination, base_dir):
     '''Compose a message describing the movement'''
-    name = table_entry.filepath.name
+    source = table_entry.filepath
     short_source_parent = str(shorten_path(source.parent, base_dir))    #<--
     short_dest_parent = str(shorten_path(destination.parent, base_dir))    #<--
     move_msg = f"moved {table_entry.filepath.name} in {short_source_parent} to {short_dest_parent}\n"
     return move_msg
 
-def error_message(table_entry):
+def error_message(table_entry, base_dir):
     '''Compose a message describing the movement error'''
     print(f"Issue found at {table_entry.filepath}") #better if this were a data structure
     
@@ -79,73 +79,12 @@ def error_message(table_entry):
     issue_type = issues.get(table_entry.flag, 'Issue') #returns 'Issue' if flag is not 'd' or 'u'
     
     # Compose error message
-    error_msg = issue_type + ": " + table_entry.filepath + " in " + str(shorten_path(source.parent, base_dir)) #<--
+    source = table_entry.filepath
+    short_source_parent = str(shorten_path(source.parent, base_dir))    #<--
+    error_msg = issue_type + ": " + str(table_entry.filepath.name) + " in " + short_source_parent #<--
     return error_msg
 
 def log_message(log_file_path, time, message):
     '''Write a timestamped message to a logfile'''
     with log_file_path.open(mode='a') as log_file:
             log_file.write(time + ' --- ' + message)
-
-# Configuration
-credentials_path = Path.cwd() / 'trello-key-and-token-test.txt'  #text file with api key and oath token for bot's Trello account
-credentials = credentials_path.read_text().split(',')
-
-API_KEY = credentials[1]
-OATH_TOKEN = credentials[3]
-BOARD_NAME = "KAD-Reorganize"
-LIST_NAME= "Issues"
-#USER_NAMES = ["kevinfisher6", "sheripak"]
-USER_NAMES = ["joseph80236002"]
-
-
-files_path = Path.cwd() / args[0]   #text file that lists the full paths to each file I want to move
-
-errors_log_path = Path.cwd() / 'errors.log'
-changes_log_path = Path.cwd() / 'changes.log'
-
-base_dir = Path.cwd()           #used to shorten paths later - TODO: change this to an absolute path
-reorg_dir = Path.cwd() / 'testdirectory2'   #this needs to be configured by each user
-
-data_stream = args[1]    #first organizational tier
-data_type = args[2]      #second organizational tier
-
-# Path Data
-paths = files_path.read_text().splitlines()     #names of files to move - TODO: remove blank lines
-paths = [Path(p) for p in paths]            #turn strings into path objects
-
-# Compose data structure
-TableEntry = namedtuple("TableEntry", 'filepath flag cat1 cat2 cat3 issue')
-tableentries = (TableEntry(p, '', data_stream, data_type, '', '') for p in paths)
-
-#Find trello ids
-board_id = trello.find_board(BOARD_NAME, API_KEY, OATH_TOKEN)
-list_id = trello.find_list(board_id, LIST_NAME, API_KEY, OATH_TOKEN)
-member_ids = trello.find_members(USER_NAMES, API_KEY, OATH_TOKEN)
-
-# Move the files and write to log
-for e in tableentries:
-    #get currrent time (used in log messages)
-    current_time = time.strftime('%Y-%m-%d %H:%M:%S %z', time.localtime(time.time()))
-    
-    #paths for movement
-    name = str(e.filepath.name)
-    source = e.filepath         
-    destination = base_dir / reorg_dir / e.cat1 / e.cat2 / name
-    
-    if e.flag == '':
-        # Move and log
-        move(source=e.filepath, destination=destination) #need to make exception for when cat3 does not exist
-        msg = move_message(table_entry=e)
-        log_message(log_file_path=changes_log_path, time=current_time, message=msg)
-
-    else:
-        # Log the error
-        msg = error_message(table_entry=e)
-        log_message(log_file_path=errors_log_path, time=current_time, message=msg)
-
-        # Make an issue card
-        card_name = error_message   # TODO: need shorten_dir here?
-        card_description = ""
-        trello.create_card(list_id, card_name, card_description, member_ids, API_KEY, OATH_TOKEN) #TODO: make card_description an optional argument
-    

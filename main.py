@@ -7,6 +7,10 @@ from pathlib import Path
 import tkinter as tk
 from tkinter import ttk
 import csv
+import trello
+import move_and_log
+from collections import namedtuple
+import time
 
 def list_dirs(current_dir: Path):
     '''Returns a list of the absolute paths of the items in current_dir,
@@ -141,7 +145,7 @@ class MainApplication:
         
         # Initialize Data
         self.row_names = [
-            "C:\\testdir\\testfile1.txt",
+            "C:\\Users\\Joseph\\computer\\GitHub\\reorganize-with-trello\\testdirectory1\\testfile1.txt",
             "C:\\testdir\\testfile2.tex",
             "C:\\testdir\\testfile3.py"
         ]
@@ -165,8 +169,8 @@ class MainApplication:
         self.buttonframe.grid(row=1, column=0, columnspan=2)
 
         # Create buttons
-        self.save_button = tk.Button(self.buttonframe,text="Save",command=self.save_entries)
-        self.save_button.grid(row=1, column=0)
+        self.process_button = tk.Button(self.buttonframe,text="Process",command=self.process_entries)
+        self.process_button.grid(row=1, column=0)
         self.exit_button = tk.Button(self.buttonframe, text="Exit", command=self.exit_app)
         self.exit_button.grid(row=1, column=1)
 
@@ -182,6 +186,65 @@ class MainApplication:
                 row.extend(self.table.tree.item(row_id)['values'])  #remaining columns
                 print('save row: ', row)
                 csvwriter.writerow(row)
+
+    def process_entries(self):
+        # Configuration
+        credentials_path = Path.cwd() / 'trello-key-and-token-test.txt'  #text file with api key and oath token for bot's Trello account
+        credentials = credentials_path.read_text().split(',')
+
+        API_KEY = credentials[1]
+        OATH_TOKEN = credentials[3]
+        BOARD_NAME = "KAD-Reorganize"
+        LIST_NAME= "Issues"
+        #USER_NAMES = ["kevinfisher6", "sheripak"]
+        USER_NAMES = ["joseph80236002"]
+
+        errors_log_path = Path.cwd() / 'errors.log'
+        changes_log_path = Path.cwd() / 'changes.log'
+
+        base_dir = Path.cwd()           #used to shorten paths later - TODO: change this to an absolute path
+        reorg_dir = Path.cwd() / 'testdirectory2'   #this needs to be configured by each user
+
+        # Compose data structure
+        TableEntry = namedtuple("TableEntry", 'filepath flag cat1 cat2 cat3')
+        row_ids = self.table.tree.get_children()
+        table_entries = (
+            TableEntry(Path(self.table.tree.item(id)['text']), *self.table.tree.item(id)['values'])
+            for id
+            in row_ids
+        )
+
+        #Find trello ids
+        board_id = trello.find_board(BOARD_NAME, API_KEY, OATH_TOKEN)
+        list_id = trello.find_list(board_id, LIST_NAME, API_KEY, OATH_TOKEN)
+        member_ids = trello.find_members(USER_NAMES, API_KEY, OATH_TOKEN)
+
+        # Move the files and write to log
+        for e in table_entries:
+            #get currrent time (used in log messages)
+            current_time = time.strftime('%Y-%m-%d %H:%M:%S %z', time.localtime(time.time()))
+            
+            #paths for movement
+            name = str(e.filepath.name)
+            source = e.filepath         
+            destination = base_dir / reorg_dir / e.cat1 / e.cat2 / name
+            
+            if e.flag == '':
+                print('here')
+                # Move and log
+                move_and_log.move(source=e.filepath, destination=destination, base_dir=base_dir) #TODO: make exception for when cat3 does not exist
+                msg = move_and_log.move_message(table_entry=e, destination=destination, base_dir=base_dir)
+                move_and_log.log_message(log_file_path=changes_log_path, time=current_time, message=msg)
+
+            else:
+                # Log the error
+                msg = move_and_log.error_message(table_entry=e, base_dir=base_dir)
+                move_and_log.log_message(log_file_path=errors_log_path, time=current_time, message=msg)
+
+                # Make an issue card
+                card_name = msg   # TODO: need shorten_dir here?
+                card_description = ""
+                trello.create_card(list_id, card_name, card_description, member_ids, API_KEY, OATH_TOKEN) #TODO: make card_description an optional argument
 
     def exit_app(self):
         '''Close the main window'''
