@@ -16,12 +16,8 @@ In order to work, the following must be in the cwd:
       
 """
 from pathlib import Path
-import requests
-from collections import namedtuple
 from distutils.dir_util import copy_tree
 import shutil
-import time 
-import trello
 
 # Functions
 def shorten_path(full_path, base_dir: str):    #ref: https://stackoverflow.com/questions/53255659/from-pathlib-parts-tuple-to-string-path
