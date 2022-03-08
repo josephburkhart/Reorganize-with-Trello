@@ -8,6 +8,7 @@
 #   consider where to put configuration code - before button click or after?
 #   have a function quickly check to see if all entries actually exist when button is clicked
 #   remove unnecessary imports in main and modules
+#   add a config file containing pre-saved board and list IDs
 
 from pathlib import Path
 import tkinter as tk

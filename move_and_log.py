@@ -65,9 +65,9 @@ def move(source: Path, destination: Path, base_dir: Path):
 def move_message(table_entry, destination, base_dir):
     '''Compose a message describing the movement'''
     source = table_entry.filepath
-    short_source_parent = str(shorten_path(source.parent, base_dir))    #<--
-    short_dest_parent = str(shorten_path(destination.parent, base_dir))    #<--
-    move_msg = f"moved {table_entry.filepath.name} in {short_source_parent} to {short_dest_parent}\n"
+    short_source = shorten_path(source, base_dir)    #<--
+    short_dest = shorten_path(destination, base_dir)    #<--
+    move_msg = f"moved {table_entry.filepath.name} in {short_source.parent} to {short_dest.parent}\n"
     return move_msg
 
 def error_message(table_entry, base_dir):
