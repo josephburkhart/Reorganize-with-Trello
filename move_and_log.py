@@ -62,8 +62,8 @@ def move_message(table_entry, destination: Path, base_dir: Path):
     '''Compose a message describing the movement
     Note that table_entry must have the following attributes: filepath'''
     source = table_entry.filepath
-    short_source = shorten_path(source, base_dir)    #<--
-    short_dest = shorten_path(destination, base_dir)    #<--
+    short_source = shorten_path(source, base_dir)
+    short_dest = shorten_path(destination, base_dir)
     move_msg = f"moved {table_entry.filepath.name} in {short_source.parent} to {short_dest.parent}\n"
     return move_msg
 
@@ -78,8 +78,8 @@ def error_message(table_entry, base_dir: Path):
     
     # Compose error message
     source = table_entry.filepath
-    short_source_parent = str(shorten_path(source.parent, base_dir))    #<--
-    error_msg = issue_type + ": " + str(table_entry.filepath.name) + " in " + short_source_parent #<--
+    short_source_parent = shorten_path(source.parent, base_dir)
+    error_msg = issue_type + ": " + str(table_entry.filepath.name) + " in " + str(short_source_parent)
     return error_msg
 
 def log_message(log_file_path: Path, time, message):
