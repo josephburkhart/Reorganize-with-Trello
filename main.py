@@ -9,6 +9,8 @@
 #   have a function quickly check to see if all entries actually exist when button is clicked
 #   remove unnecessary imports in main and modules
 #   add a config file containing pre-saved board and list IDs
+#   optional: add frame to GUI showing the trello parameters in config
+#   optional: add a frame to GUI showing current working directory and base reorg
 
 from pathlib import Path
 import tkinter as tk
