@@ -181,6 +181,10 @@ class MainApplication:
         self.exit_button = tk.Button(self.buttonframe, text="Exit", command=self.exit_app)
         self.exit_button.grid(row=1, column=1)
 
+    def exit_app(self):
+        '''Close the main window'''
+        self.parent.destroy()
+
     def save_entries(self):
         '''Export each entry in the table to a csv file 
         (will be changed later to just return entries as a list of lists)'''
@@ -252,9 +256,6 @@ class MainApplication:
                 card_description = ""
                 trello.create_card(list_id, card_name, card_description, member_ids, API_KEY, OATH_TOKEN) #TODO: make card_description an optional argument
 
-    def exit_app(self):
-        '''Close the main window'''
-        self.parent.destroy()
 
 if __name__ == "__main__":
     # Initialize main window
