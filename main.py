@@ -255,7 +255,7 @@ class MainApplication:
                 trello.create_card(config['LIST_ID'], 
                                    card_name, 
                                    card_description, 
-                                   config['USER_IDS'], 
+                                   config['MEMBER_IDS'], 
                                    config['API_KEY'], 
                                    config['OATH_TOKEN']) #TODO: make card_description an optional argument
 
@@ -285,13 +285,13 @@ class MainApplication:
         # Check that all IDs are present, and if they aren't...
         if (config['BOARD_ID'] == None or
             config['LIST_ID'] == None or
-            (config['USER_IDS'] == None and config['USER_NAMES'] != None)):
+            (config['MEMBER_IDS'] == None and config['MEMBER_NAMES'] != None)):
             
             # Find them...
             print(f'Warning: ID(s) missing in {self.config_path}. Attempting to find IDs...')
             config['BOARD_ID'] = trello.find_board(config['BOARD_NAME'], config['API_KEY'], config['OATH_TOKEN'])
             config['LIST_ID'] = trello.find_list(config['BOARD_ID'], config['LIST_NAME'], config['API_KEY'], config['OATH_TOKEN'])
-            config['USER_IDS'] = trello.find_members(config['USER_NAMES'], config['API_KEY'], config['OATH_TOKEN'])
+            config['MEMBER_IDS'] = trello.find_members(config['MEMBER_NAMES'], config['API_KEY'], config['OATH_TOKEN'])
             
             # Write them to the config file...
             with open(self.config_path, 'w') as config_file:

@@ -1,7 +1,7 @@
 # Configuration settings for main.py
 # Notes:
-    # - optional parameters: USER_NAMES
-    # - USER_NAMES must be in a markdown-style bulleted list
+    # - optional parameters: MEMBER_NAMES
+    # - MEMBER_NAMES must be in a markdown-style bulleted list
     # - if IDs are missing from this file, main.py will try to find them automatically
 
 # Path settings
@@ -15,10 +15,10 @@ API_KEY: your_key
 OATH_TOKEN: your_token
 BOARD_NAME: your_board_name
 LIST_NAME: your_list_name
-USER_NAMES:
+MEMBER_NAMES:
 - your_username1
 - your_username2
 - etc
 BOARD_ID:
 LIST_ID:
-USER_IDS:
+MEMBER_IDS:
