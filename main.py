@@ -11,6 +11,7 @@
 #   add a config file containing pre-saved board and list IDs
 #   optional: add frame to GUI showing the trello parameters in config
 #   optional: add a frame to GUI showing current working directory and base reorg
+#   optional: reformat docstrings according to PEP8
 
 from pathlib import Path
 import tkinter as tk
@@ -20,6 +21,9 @@ import trello
 import move_and_log
 from collections import namedtuple
 import time
+#import yaml
+import ruamel.yaml
+import json
 
 def list_dirs(current_dir: Path):
     '''Returns a list of the absolute paths of the items in current_dir,
@@ -149,8 +153,9 @@ class EntryPopup(tk.Entry):
         return 'break'
 
 class MainApplication:
-    def __init__(self, parent):
+    def __init__(self, parent, config_path):
         self.parent = parent
+        self.config_path = config_path
         
         # Initialize Data
         self.row_names = [
@@ -201,22 +206,8 @@ class MainApplication:
                 csvwriter.writerow(row)
 
     def process_entries(self):
-        # Configuration
-        credentials_path = Path.cwd() / 'trello-key-and-token-test.txt'  #text file with api key and oath token for bot's Trello account
-        credentials = credentials_path.read_text().split(',')
-
-        API_KEY = credentials[1]
-        OATH_TOKEN = credentials[3]
-        BOARD_NAME = "KAD-Reorganize"
-        LIST_NAME= "Issues"
-        #USER_NAMES = ["kevinfisher6", "sheripak"]
-        USER_NAMES = ["joseph80236002"]
-
-        errors_log_path = Path.cwd() / 'errors.log'
-        changes_log_path = Path.cwd() / 'changes.log'
-
-        base_dir = Path.cwd()           #used to shorten paths later - TODO: change this to an absolute path
-        reorg_dir = Path.cwd() / 'testdirectory2'   #this needs to be configured by each user
+        # Load configuration
+        config = self.load_config()
 
         # Compose data structure
         TableEntry = namedtuple("TableEntry", 'filepath flag cat1 cat2 cat3')
@@ -227,37 +218,95 @@ class MainApplication:
             in row_ids
         )
 
-        #Find trello ids
-        board_id = trello.find_board(BOARD_NAME, API_KEY, OATH_TOKEN)
-        list_id = trello.find_list(board_id, LIST_NAME, API_KEY, OATH_TOKEN)
-        member_ids = trello.find_members(USER_NAMES, API_KEY, OATH_TOKEN)
-
         # Move the files and write to log
         for e in table_entries:
-            #get currrent time (used in log messages)
+            # Current time will be used in log messages  TODO: put this inside the log_message function
             current_time = time.strftime('%Y-%m-%d %H:%M:%S %z', time.localtime(time.time()))
             
             #paths for movement
-            name = str(e.filepath.name)
-            source = e.filepath         
-            destination = base_dir / reorg_dir / e.cat1 / e.cat2 / name
-            
+            source = e.filepath
+            destination = Path(config['REORG_DIRECTORY']) / e.cat1 / e.cat2 / source.name
+
             if e.flag == '':
                 # Move and log
-                move_and_log.move(source=e.filepath, destination=destination, base_dir=base_dir) #TODO: make exception for when cat3 does not exist
-                msg = move_and_log.move_message(table_entry=e, destination=destination, base_dir=base_dir)
-                move_and_log.log_message(log_file_path=changes_log_path, time=current_time, message=msg)
+                move_and_log.move(source=e.filepath,
+                                  destination=destination, 
+                                  base_dir=Path(config['BASE_DIRECTORY'])) #TODO: make exception for when cat3 does not exist
+                
+                msg = move_and_log.move_message(table_entry=e, 
+                                                destination=destination, 
+                                                base_dir=Path(config['BASE_DIRECTORY']))
+                
+                move_and_log.log_message(log_file_path=Path(config['CHANGE_LOG_PATH']), 
+                                         time=current_time, 
+                                         message=msg)
 
             else:
                 # Log the error
-                msg = move_and_log.error_message(table_entry=e, base_dir=base_dir)
-                move_and_log.log_message(log_file_path=errors_log_path, time=current_time, message=msg)
+                msg = move_and_log.error_message(table_entry=e, 
+                                                 base_dir=Path(config['BASE_DIRECTORY']))
+                move_and_log.log_message(log_file_path=Path(config['ERROR_LOG_PATH']), 
+                                         time=current_time, 
+                                         message=msg)
 
                 # Make an issue card
                 card_name = msg   # TODO: need shorten_dir here?
                 card_description = ""
-                trello.create_card(list_id, card_name, card_description, member_ids, API_KEY, OATH_TOKEN) #TODO: make card_description an optional argument
+                trello.create_card(config['LIST_ID'], 
+                                   card_name, 
+                                   card_description, 
+                                   config['USER_IDS'], 
+                                   config['API_KEY'], 
+                                   config['OATH_TOKEN']) #TODO: make card_description an optional argument
 
+    def load_config(self):
+        '''Loads settings from a YAML configuration file, checks to make sure 
+        all IDs are present, and then returns the settings as a dictionary'''
+        with open(self.config_path) as config_file:
+            yaml = ruamel.yaml.YAML()
+            config = yaml.load(config_file)
+
+        # Check that trello credentials are present, and if they aren't throw an error
+        if (config['API_KEY'] == None or config['OATH_TOKEN'] == None):
+            raise ConfigError(f'trello credential(s) missing in {self.config_path}')
+
+        # Check that required names are present, and if they aren't throw an error
+        if (config['BOARD_NAME'] == None or config['LIST_NAME'] == None):
+            raise ConfigError(f'name(s) missing in {self.config_path}')
+
+        # Check that all paths are present, and if they aren't throw an error
+        if (config['ERROR_LOG_PATH'] == None or
+            config['CHANGE_LOG_PATH'] == None or
+            config['BASE_DIRECTORY'] == None or
+            config['REORG_DIRECTORY'] == None):
+
+            raise ConfigError(f'path(s) missing in {self.config_path}')
+            
+        # Check that all IDs are present, and if they aren't...
+        if (config['BOARD_ID'] == None or
+            config['LIST_ID'] == None or
+            (config['USER_IDS'] == None and config['USER_NAMES'] != None)):
+            
+            # Find them...
+            print(f'Warning: ID(s) missing in {self.config_path}. Attempting to find IDs...')
+            config['BOARD_ID'] = trello.find_board(config['BOARD_NAME'], config['API_KEY'], config['OATH_TOKEN'])
+            config['LIST_ID'] = trello.find_list(config['BOARD_ID'], config['LIST_NAME'], config['API_KEY'], config['OATH_TOKEN'])
+            config['USER_IDS'] = trello.find_members(config['USER_NAMES'], config['API_KEY'], config['OATH_TOKEN'])
+            
+            # Write them to the config file...
+            with open(self.config_path, 'w') as config_file:
+                yaml = ruamel.yaml.YAML()
+                yaml.dump(config, config_file)
+
+            # And reload the config file
+            with open(self.config_path) as config_file:
+                yaml = ruamel.yaml.YAML()
+                config = yaml.load(config_file)
+        
+        return config
+
+class ConfigError(Exception):
+    pass
 
 if __name__ == "__main__":
     # Initialize main window
@@ -270,7 +319,8 @@ if __name__ == "__main__":
     root.grid_columnconfigure(0, weight=1)
 
     # Create GUI
-    MainApplication(root)
+    config_path = 'testconfig_copy.yml'
+    MainApplication(root, config_path)
 
     # Run application
     root.mainloop()
