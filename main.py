@@ -8,10 +8,11 @@
 #   consider where to put configuration code - before button click or after?
 #   have a function quickly check to see if all entries actually exist when button is clicked
 #   remove unnecessary imports in main and modules
-#   add a config file containing pre-saved board and list IDs
 #   optional: add frame to GUI showing the trello parameters in config
 #   optional: add a frame to GUI showing current working directory and base reorg
 #   optional: reformat docstrings according to PEP8
+
+# Note: add , highlightbackground='red', highlightthickness=1 to widget options to see borders
 
 from pathlib import Path
 import tkinter as tk
@@ -33,7 +34,7 @@ def list_dirs(current_dir: Path):
 class Table:
     def __init__(self, parent, row_names, column_names, column_widths):
         # Initialize Treeview
-        self.tree = ttk.Treeview(parent)
+        self.tree = ttk.Treeview(parent, height=15)
         self.tree.grid(row=0, column=0, columnspan=2, sticky='n')
 
         # Initialize instance attributes
@@ -171,15 +172,37 @@ class MainApplication:
         self.scrollbar.grid(row=0, column=2, sticky='ns')
         self.table.tree.configure(yscrollcommand=self.scrollbar.set)
 
+        # Create info frame
+        self.infoframe = tk.Frame(self.parent, width=545, height=100)
+        self.infoframe.grid(row=1, column=0, columnspan=3, sticky='ns')
+
+        # Create info labels
+        instructions=('For each item, enter category names to move it to <base>\\<reorg>\\<cat1>\\<cat2>\\<cat3>\n\n' +
+                      'Items can be flagged to indicate an issue - a flagged item will not be moved, and a trello card will be created\n\n' +
+                      'Flags can be \'d\' (duplicate), \'u\' (unclear) or any other character (issue)\n')
+        self.messagebox = tk.Message(self.infoframe, text=instructions, width=545, justify='left')
+        self.messagebox.grid(row=0, column=0, sticky='ns')
+        
+        cwdtext = 'Current Directory:\t\t' + str(Path('this\\is\\the\\current\\directory'))
+        self.cwdlabel = tk.Label(self.infoframe, text=cwdtext)
+        self.cwdlabel.grid(row=1, column=0, sticky='w')
+
+        bdtext = 'Base Directory:\t\t' + str(Path('this\\is\\the\\base\\directory'))
+        self.bdlabel = tk.Label(self.infoframe, text=bdtext)
+        self.bdlabel.grid(row=2, column=0, sticky='w')
+
+        rdtext = 'Reorg Directory:\t\t' + str(Path('this\\is\\the\\reorg\\directory'))
+        self.rdlabel = tk.Label(self.infoframe, text=rdtext)
+        self.rdlabel.grid(row=3, column=0, sticky='w')
         # Create button frame
         self.buttonframe = tk.Frame(self.parent)
-        self.buttonframe.grid(row=1, column=0, columnspan=2)
+        self.buttonframe.grid(row=2, column=0, columnspan=2)
 
         # Create buttons
         self.process_button = tk.Button(self.buttonframe,text="Process",command=self.process_entries)
-        self.process_button.grid(row=1, column=0)
+        self.process_button.grid(row=0, column=0)
         self.exit_button = tk.Button(self.buttonframe, text="Exit", command=self.exit_app)
-        self.exit_button.grid(row=1, column=1)
+        self.exit_button.grid(row=0, column=1)
 
     def exit_app(self):
         '''Close the main window'''
@@ -292,14 +315,14 @@ if __name__ == "__main__":
     # Initialize main window
     root=tk.Tk()
     root.title('Reorganize with Trello')
-    root.geometry('545x500')
+    root.geometry('545x540')
 
     # Enable resizing of main window contents - https://stackoverflow.com/questions/60954478/tkinter-treeview-doesnt-resize-with-window
     root.grid_rowconfigure(0, weight=1)
     root.grid_columnconfigure(0, weight=1)
 
     # Create GUI
-    config_path = Path(__file__).parent / 'config.yml'
+    config_path = Path(__file__).parent / 'testconfig.yml'
     MainApplication(root, config_path)
 
     # Run application
