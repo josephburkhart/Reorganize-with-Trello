@@ -16,14 +16,11 @@
 from pathlib import Path
 import tkinter as tk
 from tkinter import ttk
-import csv
 import trello
 import move_and_log
 from collections import namedtuple
 import time
-#import yaml
 import ruamel.yaml
-import json
 
 def list_dirs(current_dir: Path):
     '''Returns a list of the absolute paths of the items in current_dir,
@@ -191,19 +188,6 @@ class MainApplication:
     def exit_app(self):
         '''Close the main window'''
         self.parent.destroy()
-
-    def save_entries(self):
-        '''Export each entry in the table to a csv file 
-        (will be changed later to just return entries as a list of lists)'''
-        #data = []   #TODO: better to make a class with the different attribute names
-        with open('data.csv', 'w', newline='') as myfile:
-            csvwriter = csv.writer(myfile, delimiter=',')
-        
-            for row_id in self.table.tree.get_children():
-                row = [self.table.tree.item(row_id)['text']]        #first column
-                row.extend(self.table.tree.item(row_id)['values'])  #remaining columns
-                print('save row: ', row)
-                csvwriter.writerow(row)
 
     def process_entries(self):
         # Load configuration
