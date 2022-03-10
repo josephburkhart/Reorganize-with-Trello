@@ -2,6 +2,7 @@
 ###################
 trello-key-and-token-pr.txt
 files.txt
+*.log
 testdirectory1/
 testdirectory2/
 __pycache__/
