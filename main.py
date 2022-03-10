@@ -319,7 +319,7 @@ if __name__ == "__main__":
     root.grid_columnconfigure(0, weight=1)
 
     # Create GUI
-    config_path = 'testconfig_copy.yml'
+    config_path = 'config.yml'
     MainApplication(root, config_path)
 
     # Run application
