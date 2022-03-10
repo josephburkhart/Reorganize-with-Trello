@@ -155,11 +155,7 @@ class MainApplication:
         self.config_path = config_path
         
         # Initialize Data
-        self.row_names = [
-            "C:\\Users\\Joseph\\computer\\GitHub\\reorganize-with-trello\\testdirectory1\\testfile1.txt",
-            "C:\\testdir\\testfile2.tex",
-            "C:\\testdir\\testfile3.py"
-        ]
+        self.row_names = list_dirs(current_dir=Path.cwd())
         self.column_names = ['filename', 'flag', 'cat1', 'cat2', 'cat3 (opt.)']
         self.column_widths = [250, 35, 80, 80, 80]
 
