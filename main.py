@@ -154,6 +154,9 @@ class MainApplication:
     def __init__(self, parent, config_path):
         self.parent = parent
         self.config_path = config_path
+
+        # Import config
+        self.config = self.load_config()
         
         # Initialize Data
         self.row_names = list_dirs(current_dir=Path.cwd())
@@ -174,26 +177,27 @@ class MainApplication:
 
         # Create info frame
         self.infoframe = tk.Frame(self.parent, width=545, height=100)
-        self.infoframe.grid(row=1, column=0, columnspan=3, sticky='ns')
+        self.infoframe.grid(row=1, column=0, columnspan=3, sticky='ns', pady=5)
 
         # Create info labels
         instructions=('For each item, enter category names to move it to <base>\\<reorg>\\<cat1>\\<cat2>\\<cat3>\n\n' +
-                      'Items can be flagged to indicate an issue - a flagged item will not be moved, and a trello card will be created\n\n' +
+                      'Items can be flagged to indicate an issue. A flagged item will not be moved, and a trello card will be created. ' +
                       'Flags can be \'d\' (duplicate), \'u\' (unclear) or any other character (issue)\n')
         self.messagebox = tk.Message(self.infoframe, text=instructions, width=545, justify='left')
         self.messagebox.grid(row=0, column=0, sticky='ns')
         
-        cwdtext = 'Current Directory:\t\t' + str(Path('this\\is\\the\\current\\directory'))
+        cwdtext = 'Current Directory:\t\t' + str(Path.cwd())
         self.cwdlabel = tk.Label(self.infoframe, text=cwdtext)
         self.cwdlabel.grid(row=1, column=0, sticky='w')
 
-        bdtext = 'Base Directory:\t\t' + str(Path('this\\is\\the\\base\\directory'))
+        bdtext = 'Base Directory:\t\t' + self.config['BASE_DIRECTORY']
         self.bdlabel = tk.Label(self.infoframe, text=bdtext)
         self.bdlabel.grid(row=2, column=0, sticky='w')
 
-        rdtext = 'Reorg Directory:\t\t' + str(Path('this\\is\\the\\reorg\\directory'))
+        rdtext = 'Reorg Directory:\t\t' + self.config['REORG_DIRECTORY']
         self.rdlabel = tk.Label(self.infoframe, text=rdtext)
         self.rdlabel.grid(row=3, column=0, sticky='w')
+        
         # Create button frame
         self.buttonframe = tk.Frame(self.parent)
         self.buttonframe.grid(row=2, column=0, columnspan=2)
@@ -228,39 +232,39 @@ class MainApplication:
             
             #paths for movement
             source = e.filepath
-            destination = Path(config['REORG_DIRECTORY']) / e.cat1 / e.cat2 / source.name
+            destination = Path(self.config['REORG_DIRECTORY']) / e.cat1 / e.cat2 / source.name
 
             if e.flag == '':
                 # Move and log
                 move_and_log.move(source=e.filepath,
                                   destination=destination, 
-                                  base_dir=Path(config['BASE_DIRECTORY'])) #TODO: make exception for when cat3 does not exist
+                                  base_dir=Path(self.config['BASE_DIRECTORY'])) #TODO: make exception for when cat3 does not exist
                 
                 msg = move_and_log.move_message(table_entry=e, 
                                                 destination=destination, 
-                                                base_dir=Path(config['BASE_DIRECTORY']))
+                                                base_dir=Path(self.config['BASE_DIRECTORY']))
                 
-                move_and_log.log_message(log_file_path=Path(config['CHANGE_LOG_PATH']), 
+                move_and_log.log_message(log_file_path=Path(self.config['CHANGE_LOG_PATH']), 
                                          time=current_time, 
                                          message=msg)
 
             else:
                 # Log the error
                 msg = move_and_log.error_message(table_entry=e, 
-                                                 base_dir=Path(config['BASE_DIRECTORY']))
-                move_and_log.log_message(log_file_path=Path(config['ERROR_LOG_PATH']), 
+                                                 base_dir=Path(self.config['BASE_DIRECTORY']))
+                move_and_log.log_message(log_file_path=Path(self.config['ERROR_LOG_PATH']), 
                                          time=current_time, 
                                          message=msg)
 
                 # Make an issue card
                 card_name = msg   # TODO: need shorten_dir here?
                 card_description = ""
-                trello.create_card(config['LIST_ID'], 
+                trello.create_card(self.config['LIST_ID'], 
                                    card_name, 
                                    card_description, 
-                                   config['MEMBER_IDS'], 
-                                   config['API_KEY'], 
-                                   config['OATH_TOKEN']) #TODO: make card_description an optional argument
+                                   self.config['MEMBER_IDS'], 
+                                   self.config['API_KEY'], 
+                                   self.config['OATH_TOKEN']) #TODO: make card_description an optional argument
 
     def load_config(self):
         '''Loads settings from a YAML configuration file, checks to make sure 
@@ -271,11 +275,11 @@ class MainApplication:
 
         # Check that trello credentials are present, and if they aren't throw an error
         if (config['API_KEY'] == None or config['OATH_TOKEN'] == None):
-            raise ConfigError(f'trello credential(s) missing in {self.config_path}')
+            raise ConfigError(f'trello credential(s) missing in {config_path}')
 
         # Check that required names are present, and if they aren't throw an error
         if (config['BOARD_NAME'] == None or config['LIST_NAME'] == None):
-            raise ConfigError(f'name(s) missing in {self.config_path}')
+            raise ConfigError(f'name(s) missing in {config_path}')
 
         # Check that all paths are present, and if they aren't throw an error
         if (config['ERROR_LOG_PATH'] == None or
@@ -283,7 +287,7 @@ class MainApplication:
             config['BASE_DIRECTORY'] == None or
             config['REORG_DIRECTORY'] == None):
 
-            raise ConfigError(f'path(s) missing in {self.config_path}')
+            raise ConfigError(f'path(s) missing in {config_path}')
             
         # Check that all IDs are present, and if they aren't...
         if (config['BOARD_ID'] == None or
@@ -291,7 +295,7 @@ class MainApplication:
             (config['MEMBER_IDS'] == None and config['MEMBER_NAMES'] != None)):
             
             # Find them...
-            print(f'Warning: ID(s) missing in {self.config_path}. Attempting to find IDs...')
+            print(f'Warning: ID(s) missing in {config_path}. Attempting to find IDs...')
             config['BOARD_ID'] = trello.find_board(config['BOARD_NAME'], config['API_KEY'], config['OATH_TOKEN'])
             config['LIST_ID'] = trello.find_list(config['BOARD_ID'], config['LIST_NAME'], config['API_KEY'], config['OATH_TOKEN'])
             config['MEMBER_IDS'] = trello.find_members(config['MEMBER_NAMES'], config['API_KEY'], config['OATH_TOKEN'])
@@ -315,7 +319,7 @@ if __name__ == "__main__":
     # Initialize main window
     root=tk.Tk()
     root.title('Reorganize with Trello')
-    root.geometry('545x540')
+    root.geometry('545x510')
 
     # Enable resizing of main window contents - https://stackoverflow.com/questions/60954478/tkinter-treeview-doesnt-resize-with-window
     root.grid_rowconfigure(0, weight=1)
