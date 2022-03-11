@@ -23,11 +23,11 @@ from collections import namedtuple
 import time
 import ruamel.yaml
 
-def list_dirs(current_dir: Path):
+def list_names(current_dir: Path):
     '''Returns a list of the absolute paths of the items in current_dir,
     with directories before files'''
-    dirs = [p for p in current_dir.iterdir() if p.is_dir()]
-    files = [p for p in current_dir.iterdir() if p.is_file()]
+    dirs = [p.name for p in current_dir.iterdir() if p.is_dir()]
+    files = [p.name for p in current_dir.iterdir() if p.is_file()]
     contents = dirs + files
     return contents
 
@@ -159,7 +159,7 @@ class MainApplication:
         self.config = self.load_config()
         
         # Initialize Data
-        self.row_names = list_dirs(current_dir=Path.cwd())
+        self.row_names = list_names(current_dir=Path.cwd())
         self.column_names = ['filename', 'flag', 'cat1', 'cat2', 'cat3 (opt.)']
         self.column_widths = [250, 35, 80, 80, 80]
 
@@ -217,10 +217,10 @@ class MainApplication:
         config = self.load_config()
 
         # Compose data structure
-        TableEntry = namedtuple("TableEntry", 'filepath flag cat1 cat2 cat3')
+        TableEntry = namedtuple("TableEntry", 'name flag cat1 cat2 cat3')
         row_ids = self.table.tree.get_children()
         table_entries = (
-            TableEntry(Path(self.table.tree.item(id)['text']), *self.table.tree.item(id)['values'])
+            TableEntry(self.table.tree.item(id)['text'], *self.table.tree.item(id)['values'])
             for id
             in row_ids
         )
@@ -231,16 +231,16 @@ class MainApplication:
             current_time = time.strftime('%Y-%m-%d %H:%M:%S %z', time.localtime(time.time()))
             
             #paths for movement
-            source = e.filepath
+            source = Path.cwd() / e.name
             destination = Path(self.config['REORG_DIRECTORY']) / e.cat1 / e.cat2 / source.name
 
             if e.flag == '':
                 # Move and log
-                move_and_log.move(source=e.filepath,
+                move_and_log.move(source=source,
                                   destination=destination, 
                                   base_dir=Path(self.config['BASE_DIRECTORY'])) #TODO: make exception for when cat3 does not exist
                 
-                msg = move_and_log.move_message(table_entry=e, 
+                msg = move_and_log.move_message(source=source, 
                                                 destination=destination, 
                                                 base_dir=Path(self.config['BASE_DIRECTORY']))
                 
@@ -250,7 +250,8 @@ class MainApplication:
 
             else:
                 # Log the error
-                msg = move_and_log.error_message(table_entry=e, 
+                msg = move_and_log.error_message(table_entry=e,
+                                                 current_dir=Path.cwd(),
                                                  base_dir=Path(self.config['BASE_DIRECTORY']))
                 move_and_log.log_message(log_file_path=Path(self.config['ERROR_LOG_PATH']), 
                                          time=current_time, 

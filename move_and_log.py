@@ -58,28 +58,27 @@ def move(source: Path, destination: Path, base_dir: Path):
         print(f"{source.name} has been moved to " + str(shorten_path(destination.parent, base_dir)))
     return 0
 
-def move_message(table_entry, destination: Path, base_dir: Path):
+def move_message(source: Path, destination: Path, base_dir: Path):
     '''Compose a message describing the movement
-    Note that table_entry must have the following attributes: filepath'''
-    source = table_entry.filepath
+    Note that table_entry must have the following attributes: name'''
     short_source = shorten_path(source, base_dir)
     short_dest = shorten_path(destination, base_dir)
-    move_msg = f"moved {table_entry.filepath.name} in {short_source.parent} to {short_dest.parent}\n"
+    move_msg = f"moved {source.name} in {short_source.parent} to {short_dest.parent}\n"
     return move_msg
 
-def error_message(table_entry, base_dir: Path):
+def error_message(table_entry, current_dir: Path, base_dir: Path):
     '''Compose a message describing the movement error
-    Note that table_entry must have the following attributes: filepath, flag'''
-    print(f"Issue found at {table_entry.filepath}") #better if this were a data structure
+    Note that table_entry must have the following attributes: name, flag'''
+    print(f"Issue found at {current_dir / table_entry.name}") #better if this were a data structure
     
     # Determine the type of issue
     issues = {'d': 'Duplicate', 'u': 'Unclear'}
     issue_type = issues.get(table_entry.flag, 'Issue') #returns 'Issue' if flag is not 'd' or 'u'
     
     # Compose error message
-    source = table_entry.filepath
+    source = current_dir / table_entry.name
     short_source_parent = shorten_path(source.parent, base_dir)
-    error_msg = issue_type + ": " + str(table_entry.filepath.name) + " in " + str(short_source_parent)
+    error_msg = issue_type + ": " + str(table_entry.name) + " in " + str(short_source_parent)
     return error_msg
 
 def log_message(log_file_path: Path, time, message):
