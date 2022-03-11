@@ -179,24 +179,28 @@ class MainApplication:
         self.infoframe = tk.Frame(self.parent, width=545, height=100)
         self.infoframe.grid(row=1, column=0, columnspan=3, sticky='ns', pady=5)
 
-        # Create info labels        
-        cwdtext = 'Current Directory:\t\t' + str(Path.cwd())
-        self.cwdlabel = tk.Label(self.infoframe, text=cwdtext)
-        self.cwdlabel.grid(row=0, column=0, sticky='w')
+        # Create info labels and messages
+        self.cwdlabel = tk.Label(self.infoframe, text='Current Directory:\t', font='Calibri 10 bold')
+        self.cwdlabel.grid(row=0, column=0, sticky='n')
+        self.cwdmessage = tk.Message(self.infoframe, text=str(Path.cwd()), width=350, justify='left')
+        self.cwdmessage.grid(row=0, column=1, sticky='w')
 
         bdtext = 'Base Directory:\t\t' + self.config['BASE_DIRECTORY']
-        self.bdlabel = tk.Label(self.infoframe, text=bdtext)
-        self.bdlabel.grid(row=1, column=0, sticky='w')
+        self.bdlabel = tk.Label(self.infoframe, text='Base Directory:\t', font='Calibri 10 bold')
+        self.bdlabel.grid(row=1, column=0, sticky='n')
+        self.bdmessage = tk.Message(self.infoframe, text=self.config['BASE_DIRECTORY'], width=350, justify='left')
+        self.bdmessage.grid(row=1, column=1, sticky='w')
 
-        rdtext = 'Reorg Directory:\t\t' + self.config['REORG_DIRECTORY']
-        self.rdlabel = tk.Label(self.infoframe, text=rdtext)
-        self.rdlabel.grid(row=2, column=0, sticky='w')
+        self.rdlabel = tk.Label(self.infoframe, text='Reorg Directory:\t', font='Calibri 10 bold')
+        self.rdlabel.grid(row=2, column=0, sticky='n')
+        self.rdmessage = tk.Message(self.infoframe, text=self.config['REORG_DIRECTORY'], width=350, justify='left')
+        self.rdmessage.grid(row=2, column=1, sticky='w')
         
         instructions=('For each item, enter category names to move it to <base>\\<reorg>\\<cat1>\\<cat2>\\<cat3>\n\n' +
                       'Items can be flagged to indicate an issue. A flagged item will not be moved, and a trello card will be created. ' +
                       'Flags can be \'d\' (duplicate), \'u\' (unclear) or any other character (issue)')
         self.messagebox = tk.Message(self.infoframe, text=instructions, width=545, justify='left')
-        self.messagebox.grid(row=3, column=0, sticky='ns')
+        self.messagebox.grid(row=3, column=0, columnspan=2, sticky='ns')
 
         # Create button frame
         self.buttonframe = tk.Frame(self.parent)
