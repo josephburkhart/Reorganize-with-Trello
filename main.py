@@ -179,25 +179,25 @@ class MainApplication:
         self.infoframe = tk.Frame(self.parent, width=545, height=100)
         self.infoframe.grid(row=1, column=0, columnspan=3, sticky='ns', pady=5)
 
-        # Create info labels
-        instructions=('For each item, enter category names to move it to <base>\\<reorg>\\<cat1>\\<cat2>\\<cat3>\n\n' +
-                      'Items can be flagged to indicate an issue. A flagged item will not be moved, and a trello card will be created. ' +
-                      'Flags can be \'d\' (duplicate), \'u\' (unclear) or any other character (issue)\n')
-        self.messagebox = tk.Message(self.infoframe, text=instructions, width=545, justify='left')
-        self.messagebox.grid(row=0, column=0, sticky='ns')
-        
+        # Create info labels        
         cwdtext = 'Current Directory:\t\t' + str(Path.cwd())
         self.cwdlabel = tk.Label(self.infoframe, text=cwdtext)
-        self.cwdlabel.grid(row=1, column=0, sticky='w')
+        self.cwdlabel.grid(row=0, column=0, sticky='w')
 
         bdtext = 'Base Directory:\t\t' + self.config['BASE_DIRECTORY']
         self.bdlabel = tk.Label(self.infoframe, text=bdtext)
-        self.bdlabel.grid(row=2, column=0, sticky='w')
+        self.bdlabel.grid(row=1, column=0, sticky='w')
 
         rdtext = 'Reorg Directory:\t\t' + self.config['REORG_DIRECTORY']
         self.rdlabel = tk.Label(self.infoframe, text=rdtext)
-        self.rdlabel.grid(row=3, column=0, sticky='w')
+        self.rdlabel.grid(row=2, column=0, sticky='w')
         
+        instructions=('For each item, enter category names to move it to <base>\\<reorg>\\<cat1>\\<cat2>\\<cat3>\n\n' +
+                      'Items can be flagged to indicate an issue. A flagged item will not be moved, and a trello card will be created. ' +
+                      'Flags can be \'d\' (duplicate), \'u\' (unclear) or any other character (issue)')
+        self.messagebox = tk.Message(self.infoframe, text=instructions, width=545, justify='left')
+        self.messagebox.grid(row=3, column=0, sticky='ns')
+
         # Create button frame
         self.buttonframe = tk.Frame(self.parent)
         self.buttonframe.grid(row=2, column=0, columnspan=2)
@@ -319,7 +319,7 @@ if __name__ == "__main__":
     # Initialize main window
     root=tk.Tk()
     root.title('Reorganize with Trello')
-    root.geometry('545x510')
+    root.geometry('545x500')
 
     # Enable resizing of main window contents - https://stackoverflow.com/questions/60954478/tkinter-treeview-doesnt-resize-with-window
     root.grid_rowconfigure(0, weight=1)
