@@ -220,13 +220,13 @@ class MainApplication:
         # Load configuration
         config = self.load_config()
 
-        # Compose data structure
+        # Compose data structure            TODO: make this more elegant
         TableEntry = namedtuple("TableEntry", 'name flag cat1 cat2 cat3')
         row_ids = self.table.tree.get_children()
         table_entries = (
             TableEntry(self.table.tree.item(id)['text'], *self.table.tree.item(id)['values'])
-            for id
-            in row_ids
+            for id in row_ids
+            if self.table.tree.item(id)['values'][1] != '' or  self.table.tree.item(id)['values'][2] != ''
         )
 
         # Move the files and write to log
