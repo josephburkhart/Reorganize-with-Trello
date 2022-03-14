@@ -50,7 +50,7 @@ def move(source: Path, destination: Path, base_dir: Path, sep: str):
     
     # Create destination folder if necessary    TODO: modify print statement to include base reorg directory
     if not destination.parent.exists():
-        print(f"Warning: destination does not exist: .{s}{destination.parent.parent.name}{s}{destination.parent.name}{s} \nCreating destination... ", end="")
+        print(f"Warning: destination does not exist: .{s}{shorten_path(destination.parent, base_dir)}{s}\nCreating destination... ", end="")
         destination.parent.mkdir(parents=True, exist_ok=False) #all intermediate folders are also created
         print("Done")
     
