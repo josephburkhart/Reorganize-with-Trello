@@ -40,12 +40,12 @@ def move(source: Path, destination: Path, base_dir: Path, sep: str):
 
     # Check if the named file/directory exists
     if not source.exists():
-        print(f"Warning: {name} does not exist in {source.parent}{s}\nMove has been skipped. Continuing...\n")
+        print(f"Warning: {name} does not exist in .{s}{shorten_path(source.parent, base_dir)}{s}\nMove has been skipped. Continuing...\n")
         return
     
     # Check if there is a duplicate file/directory at the destination
     if destination.exists():
-        print(f"Warning: {name} already exists in {destination.parent}{s}\nMove has been skipped. Continuing...\n")
+        print(f"Warning: {name} already exists in .{s}{shorten_path(destination.parent, base_dir)}{s}\nMove has been skipped. Continuing...\n")
         return
     
     # Create destination folder if necessary    TODO: modify print statement to include base reorg directory
