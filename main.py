@@ -217,9 +217,6 @@ class MainApplication:
         self.parent.destroy()
 
     def process_entries(self):
-        # Load configuration
-        config = self.load_config()
-
         # Compose data structure            TODO: make this more elegant
         TableEntry = namedtuple("TableEntry", 'name flag cat1 cat2 cat3')
         row_ids = self.table.tree.get_children()
