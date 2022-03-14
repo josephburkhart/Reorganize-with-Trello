@@ -156,7 +156,7 @@ class MainApplication:
         self.config_path = config_path
 
         # Import config
-        self.config = self.load_config()
+        self.config = self.load_config(self.config_path)
         
         # Initialize Data
         self.row_names = list_names(current_dir=Path.cwd())
@@ -285,10 +285,10 @@ class MainApplication:
         if self.table.tree.get_children() == ():
             self.exit_app()
 
-    def load_config(self):
+    def load_config(self, config_path):
         '''Loads settings from a YAML configuration file, checks to make sure 
         all IDs are present, and then returns the settings as a dictionary'''
-        with open(self.config_path) as config_file:
+        with open(config_path) as config_file:
             yaml = ruamel.yaml.YAML()
             config = yaml.load(config_file)
 
@@ -320,12 +320,12 @@ class MainApplication:
             config['MEMBER_IDS'] = trello.find_members(config['MEMBER_NAMES'], config['API_KEY'], config['OATH_TOKEN'])
             
             # Write them to the config file...
-            with open(self.config_path, 'w') as config_file:
+            with open(config_path, 'w') as config_file:
                 yaml = ruamel.yaml.YAML()
                 yaml.dump(config, config_file)
 
             # And reload the config file
-            with open(self.config_path) as config_file:
+            with open(config_path) as config_file:
                 yaml = ruamel.yaml.YAML()
                 config = yaml.load(config_file)
         
