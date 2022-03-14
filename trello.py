@@ -8,13 +8,13 @@ Functions for finding boards, lists, users, and for making cards in Trello
 from pathlib import Path
 import requests
 
-def find_board(board_name, API_KEY, OATH_TOKEN):
+def find_board(board_name, api_key, oath_token):
     """Returns the ID that corresponds to the given board name"""
     print(f"Searching for board \'{board_name}\'... ", end="")
     
     #construct and send the request
     url = "https://api.trello.com/1/members/me/boards/"
-    querystring = {"key": API_KEY, "token": OATH_TOKEN}
+    querystring = {"key": api_key, "token": oath_token}
     response = requests.request("GET", url, params=querystring) #returns a JSON object with info on all the boards for the given Trello account
     
     board_info = next(board for board in response.json() if board["name"] == board_name)   #search the response for the correct board and get its info as a dictionary object
@@ -28,13 +28,13 @@ def find_board(board_name, API_KEY, OATH_TOKEN):
         print("Error: board not found\n")
         return
 
-def find_list(board_id, list_name, API_KEY, OATH_TOKEN):
+def find_list(board_id, list_name, api_key, oath_token):
     """Returns the ID that corresponds to a given list name and on a board with a given id"""
     print(f"Searching for list \'{list_name}\'... ", end="")
     
     #construct and send the request
     url = "https://api.trello.com/1/boards/" + board_id + "/lists"
-    querystring = {"key": API_KEY, "token": OATH_TOKEN}
+    querystring = {"key": api_key, "token": oath_token}
     response = requests.request("GET", url, params=querystring) #returns a JSON object with info on all the lists for the given board
 
     list_info = next(list_ for list_ in response.json() if list_["name"] == list_name) #trailing underscore to avoid conflict with Python keyword
@@ -48,7 +48,7 @@ def find_list(board_id, list_name, API_KEY, OATH_TOKEN):
         print("Error: list not found \n")
         return
     
-def find_members(members: list, API_KEY, OATH_TOKEN):
+def find_members(members: list, api_key, oath_token):
     """Returns a list of IDs corresponding to a list of usernames"""
     member_ids = []         #list that will hold the member ids
     
@@ -58,7 +58,7 @@ def find_members(members: list, API_KEY, OATH_TOKEN):
         
         #construct and send the request
         url = "https://api.trello.com/1/members/" + member
-        querystring = {"key": API_KEY, "token": OATH_TOKEN}
+        querystring = {"key": api_key, "token": oath_token}
         response = requests.request("GET", url, params=querystring) #returns a JSON object with info on all of the members specified
         
         #parse the response to see if the request was successful
@@ -77,13 +77,13 @@ def find_members(members: list, API_KEY, OATH_TOKEN):
     
     return member_ids
   
-def create_card(list_id, card_name, card_description, member_ids: list, API_KEY, OATH_TOKEN):
+def create_card(list_id, card_name, card_description, member_ids: list, api_key, oath_token):
     """Makes a Trello card in the specified list, with a specified name and description"""
     print(f"Creating card \'{card_name}\'... ", end="")
     
     #construct and send the request
     url = "https://api.trello.com/1/cards/"
-    querystring = {"key": API_KEY, "token": OATH_TOKEN, "name": card_name, "desc": card_description,
+    querystring = {"key": api_key, "token": oath_token, "name": card_name, "desc": card_description,
                    "pos": "top", "idList": list_id, "idMembers": member_ids}
     response = requests.request("POST", url, params=querystring) #returns a JSON object with info on the newly-created card
     

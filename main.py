@@ -296,8 +296,8 @@ class MainApplication:
                                    card_name=card_name, 
                                    card_description=e.issue_message,
                                    member_ids=self.config['MEMBER_IDS'], 
-                                   API_KEY=self.config['API_KEY'], 
-                                   OATH_TOKEN=self.config['OATH_TOKEN'])
+                                   api_key=self.config['API_KEY'], 
+                                   oath_token=self.config['OATH_TOKEN'])
 
         # Remove the rows that were processed from the table
         for id in row_ids_for_processing:
