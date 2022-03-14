@@ -36,33 +36,35 @@ def move(source: Path, destination: Path, base_dir: Path, sep: str):
         name = f"{s}{source.name}{s}"
     else:
         name = f"{source.name}"
+    print(f"Attempting to move {source.name}...")
+
     # Check if the named file/directory exists
     if not source.exists():
-        print(f"Warning: {name} does not exist in {source.parent}{s}\nMove has been skipped. Continuing...")
+        print(f"Warning: {name} does not exist in {source.parent}{s}\nMove has been skipped. Continuing...\n")
         return
     
     # Check if there is a duplicate file/directory at the destination
     if destination.exists():
-        print(f"Warning: {name} already exists in {destination.parent}{s}\nMove has been skipped. Continuing...")
+        print(f"Warning: {name} already exists in {destination.parent}{s}\nMove has been skipped. Continuing...\n")
         return
     
     # Create destination folder if necessary    TODO: modify print statement to include base reorg directory
     if not destination.parent.exists():
-        print(f"Destination does not exist: .{s}{destination.parent.parent.name}{s}{destination.parent.name}{s} \nCreating destination...", end="")
+        print(f"Warning: destination does not exist: .{s}{destination.parent.parent.name}{s}{destination.parent.name}{s} \nCreating destination... ", end="")
         destination.parent.mkdir(parents=True, exist_ok=False) #all intermediate folders are also created
-        print("Done\n")
+        print("Done")
     
     # If name is a directory, move it with copy_tree 
     if source.is_dir():
         #destination.mkdir(parents=False, exist_ok=False)    
         copy_tree(str(source), str(destination), preserve_times=True)
         shutil.rmtree(source)
-        print(f"{s}{source.name}{s} has been moved to .{s}{shorten_path(destination.parent, base_dir)}{s}")
     
     # If name is a file, move it with shutil.move
     else:
         shutil.move(source, destination)
-        print(f"{name} has been moved to .{s}{shorten_path(destination.parent, base_dir)}{s}")
+
+    print(f"{name} has been moved to .{s}{shorten_path(destination.parent, base_dir)}{s}\n")
     return 0
 
 def move_message(source: Path, destination: Path, base_dir: Path, sep: str):

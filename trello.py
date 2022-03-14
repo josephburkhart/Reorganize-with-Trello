@@ -10,7 +10,7 @@ import requests
 
 def find_board(board_name, API_KEY, OATH_TOKEN):
     """Returns the ID that corresponds to the given board name"""
-    print(f"Searching for board \'{board_name}\'...", end="")
+    print(f"Searching for board \'{board_name}\'... ", end="")
     
     #construct and send the request
     url = "https://api.trello.com/1/members/me/boards/"
@@ -30,7 +30,7 @@ def find_board(board_name, API_KEY, OATH_TOKEN):
 
 def find_list(board_id, list_name, API_KEY, OATH_TOKEN):
     """Returns the ID that corresponds to a given list name and on a board with a given id"""
-    print(f"Searching for list \'{list_name}\'...", end="")
+    print(f"Searching for list \'{list_name}\'... ", end="")
     
     #construct and send the request
     url = "https://api.trello.com/1/boards/" + board_id + "/lists"
@@ -54,7 +54,7 @@ def find_members(members: list, API_KEY, OATH_TOKEN):
     
     #Find the ID for each member in the list
     for member in members:
-        print(f"Searching for member \'{member}\'...", end="")
+        print(f"Searching for member \'{member}\'... ", end="")
         
         #construct and send the request
         url = "https://api.trello.com/1/members/" + member
@@ -71,15 +71,15 @@ def find_members(members: list, API_KEY, OATH_TOKEN):
     
     #print confirmation of success or partial success to the console
     if len(member_ids) == len(members):
-        print ("All members found \n") 
+        print ("All members found\n") 
     else:
-        print("Warning: some members not found. Continuing... \n")
+        print("Warning: some members not found. Continuing...\n")
     
     return member_ids
   
 def create_card(list_id, card_name, card_description, member_ids: list, API_KEY, OATH_TOKEN):
     """Makes a Trello card in the specified list, with a specified name and description"""
-    print(f"Creating card \'{card_name}\'...", end="")
+    print(f"Creating card \'{card_name}\'... ", end="")
     
     #construct and send the request
     url = "https://api.trello.com/1/cards/"
@@ -90,8 +90,8 @@ def create_card(list_id, card_name, card_description, member_ids: list, API_KEY,
     #parse the response to see if the request was successful
     try:
         card_id = response.json()["id"]     #this will return KeyError if the response contains an error
-        print("Done")
+        print("Done\n")
         return card_id
     except:
-        print("Error: card not created")
+        print("Error: card not created. Continuing...\n")
         return
