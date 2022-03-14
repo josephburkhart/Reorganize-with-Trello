@@ -260,14 +260,18 @@ class MainApplication:
             else:
                 # Log the error
                 msg = move_and_log.error_message(table_entry=e,
-                                                 current_dir=Path.cwd(),
-                                                 base_dir=Path(self.config['BASE_DIRECTORY']))
+                                                 source=source,
+                                                 base_dir=Path(self.config['BASE_DIRECTORY']),
+                                                 short_paths=False)
                 move_and_log.log_message(log_file_path=Path(self.config['ERROR_LOG_PATH']), 
                                          time=current_time, 
                                          message=msg)
 
                 # Make an issue card
-                card_name = msg   # TODO: need shorten_dir here?
+                card_name = move_and_log.error_message(table_entry=e,
+                                                 source=source,
+                                                 base_dir=Path(self.config['BASE_DIRECTORY']),
+                                                 short_paths=True)
                 card_description = ""
                 trello.create_card(self.config['LIST_ID'], 
                                    card_name, 

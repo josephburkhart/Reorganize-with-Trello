@@ -76,25 +76,30 @@ def move_message(source: Path, destination: Path, base_dir: Path):
         move_msg = f"moved {source.name} in {short_source.parent}{os.sep} to {short_dest.parent}{os.sep}\n"
     return move_msg
 
-def error_message(table_entry, current_dir: Path, base_dir: Path):
+def error_message(table_entry, source: Path, base_dir: Path, short_paths: bool):
     '''Compose a message describing the movement error
+    If short_paths=True, then the source path will be shortened to base_dir
     Note that table_entry must have the following attributes: name, flag'''
-    source = current_dir / table_entry.name
     if source.is_dir():
-        print(f"Issue found at {current_dir / table_entry.name}{os.sep}")
+        print(f"Issue found at {source}{os.sep}")
     else:
-        print(f"Issue found at {current_dir / table_entry.name}")
+        print(f"Issue found at {source}")
     
     # Determine the type of issue
     issues = {'d': 'Duplicate', 'u': 'Unclear'}
     issue_type = issues.get(table_entry.flag, 'Issue') #returns 'Issue' if flag is not 'd' or 'u'
     
     # Compose error message
-    short_source_parent = shorten_path(source.parent, base_dir)
     if source.is_dir():
-        error_msg = f"{issue_type}: {os.sep}{table_entry.name}{os.sep} in .{os.sep}{short_source_parent}{os.sep}"
+            name = f"{os.sep}{table_entry.name}{os.sep}"
     else:
-        error_msg = f"{issue_type}: {table_entry.name} in .{os.sep}{short_source_parent}{os.sep}"
+        name = source.name
+    
+    if short_paths:
+        source = shorten_path(source, base_dir)
+        error_msg = f"{issue_type}: {name} in .{os.sep}{source.parent}{os.sep}"
+    else:
+        error_msg = f"{issue_type}: {name} in {source.parent}{os.sep}"
     return error_msg
 
 def log_message(log_file_path: Path, time, message):
