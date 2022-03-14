@@ -16,6 +16,7 @@ In order to work, the following must be in the cwd:
       
 """
 from pathlib import Path
+import os
 from distutils.dir_util import copy_tree
 import shutil
 
@@ -31,17 +32,17 @@ def move(source: Path, destination: Path, base_dir: Path):
     printing messages to the console as needed'''
     # Check if the named file/directory exists
     if not source.exists():
-        print(f"Warning: {source.name} does not exist in {source.parent}\nMove has been skipped. Continuing...")
+        print(f"Warning: {source.name} does not exist in {source.parent}{os.sep}\nMove has been skipped. Continuing...")
         return
     
     # Check if there is a duplicate file/directory at the destination
     if destination.exists():
-        print("Warning: f{source.name} already exists in {destination.parent}!\nMove has been skipped. Continuing...")
+        print("Warning: f{source.name} already exists in {destination.parent}{os.sep}\nMove has been skipped. Continuing...")
         return
     
     # Create destination folder if necessary    TODO: modify print statement to include base reorg directory
     if not destination.parent.exists():
-        print(f"Destination does not exist: {destination.parent.parent.name}\\{destination.parent.name} \nCreating destination...", end="")
+        print(f"Destination does not exist: .{os.sep}{destination.parent.parent.name}{os.sep}{destination.parent.name}{os.sep} \nCreating destination...", end="")
         destination.parent.mkdir(parents=True, exist_ok=False) #all intermediate folders are also created
         print("Done\n")
     
@@ -50,12 +51,12 @@ def move(source: Path, destination: Path, base_dir: Path):
         #destination.mkdir(parents=False, exist_ok=False)    
         copy_tree(str(source), str(destination), preserve_times=True)
         shutil.rmtree(source)
-        print(f"{source.name} has been moved to" + str(shorten_path(destination.parent, base_dir)))
+        print(f"{source.name} has been moved to .{os.sep}{shorten_path(destination.parent, base_dir)}{os.sep}")
     
     # If name is a file, move it with shutil.move
     else:
         shutil.move(source, destination)
-        print(f"{source.name} has been moved to " + str(shorten_path(destination.parent, base_dir)))
+        print(f"{source.name} has been moved to .{os.sep}{shorten_path(destination.parent, base_dir)}{os.sep}")
     return 0
 
 def move_message(source: Path, destination: Path, base_dir: Path):
