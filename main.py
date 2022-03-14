@@ -11,6 +11,7 @@
 #   optional: add frame to GUI showing the trello parameters in config
 #   optional: add a frame to GUI showing current working directory and base reorg
 #   optional: reformat docstrings according to PEP8
+#   optional: refactor code so that if users input different column_names the namedtuple referencing does not break
 
 # Note: add , highlightbackground='red', highlightthickness=1 to widget options to see borders
 
@@ -184,30 +185,30 @@ class MainApplication:
         self.table.tree.configure(yscrollcommand=self.scrollbar.set)
 
         # Create info frame
-        self.infoframe = tk.Frame(self.parent, width=545, height=100)
+        self.infoframe = tk.Frame(self.parent, width=750, height=100)
         self.infoframe.grid(row=1, column=0, columnspan=3, sticky='ns', pady=5)
 
         # Create info labels and messages
         self.cwdlabel = tk.Label(self.infoframe, text='Current Directory:\t', font='Calibri 10 bold')
         self.cwdlabel.grid(row=0, column=0, sticky='n')
-        self.cwdmessage = tk.Message(self.infoframe, text=str(Path.cwd()), width=350, justify='left')
+        self.cwdmessage = tk.Message(self.infoframe, text=str(Path.cwd()), width=750, justify='left')
         self.cwdmessage.grid(row=0, column=1, sticky='w')
 
         bdtext = 'Base Directory:\t\t' + self.config['BASE_DIRECTORY']
         self.bdlabel = tk.Label(self.infoframe, text='Base Directory:\t', font='Calibri 10 bold')
         self.bdlabel.grid(row=1, column=0, sticky='n')
-        self.bdmessage = tk.Message(self.infoframe, text=self.config['BASE_DIRECTORY'], width=350, justify='left')
+        self.bdmessage = tk.Message(self.infoframe, text=self.config['BASE_DIRECTORY'], width=750, justify='left')
         self.bdmessage.grid(row=1, column=1, sticky='w')
 
         self.rdlabel = tk.Label(self.infoframe, text='Reorg Directory:\t', font='Calibri 10 bold')
         self.rdlabel.grid(row=2, column=0, sticky='n')
-        self.rdmessage = tk.Message(self.infoframe, text=self.config['REORG_DIRECTORY'], width=350, justify='left')
+        self.rdmessage = tk.Message(self.infoframe, text=self.config['REORG_DIRECTORY'], width=750, justify='left')
         self.rdmessage.grid(row=2, column=1, sticky='w')
         
         instructions=('For each item, enter category names to move it to <base>\\<reorg>\\<cat1>\\<cat2>\\<cat3>\n\n' +
                       'Items can be flagged to indicate an issue. A flagged item will not be moved, and a trello card will be created. ' +
                       'Flags can be \'d\' (duplicate), \'u\' (unclear) or any other character (issue)')
-        self.messagebox = tk.Message(self.infoframe, text=instructions, width=545, justify='left')
+        self.messagebox = tk.Message(self.infoframe, text=instructions, width=750, justify='left')
         self.messagebox.grid(row=3, column=0, columnspan=2, sticky='ns')
 
         # Create button frame
@@ -291,13 +292,12 @@ class MainApplication:
                                                  base_dir=Path(self.config['BASE_DIRECTORY']),
                                                  short_paths=True,
                                                  sep=os.sep)
-                card_description = ""
-                trello.create_card(self.config['LIST_ID'], 
-                                   card_name, 
-                                   card_description, 
-                                   self.config['MEMBER_IDS'], 
-                                   self.config['API_KEY'], 
-                                   self.config['OATH_TOKEN']) #TODO: make card_description an optional argument
+                trello.create_card(list_id=self.config['LIST_ID'], 
+                                   card_name=card_name, 
+                                   card_description=e.issue_message,
+                                   member_ids=self.config['MEMBER_IDS'], 
+                                   API_KEY=self.config['API_KEY'], 
+                                   OATH_TOKEN=self.config['OATH_TOKEN'])
 
         # Remove the rows that were processed from the table
         for id in row_ids_for_processing:
@@ -361,7 +361,7 @@ if __name__ == "__main__":
     # Initialize main window
     root=tk.Tk()
     root.title('Reorganize with Trello')
-    root.geometry('545x500')
+    root.geometry('795x500')
 
     # Enable resizing of main window contents - https://stackoverflow.com/questions/60954478/tkinter-treeview-doesnt-resize-with-window
     root.grid_rowconfigure(0, weight=1)
@@ -370,9 +370,9 @@ if __name__ == "__main__":
     # Create GUI
     MainApplication(parent=root, 
                     config_path=Path(__file__).parent / 'testconfig.yml',
-                    column_names=['name', 'flag', 'cat1', 'cat2', 'cat3'],
-                    column_widths=[250, 35, 80, 80, 80],
-                    heading_names=['name', 'flag', 'cat1', 'cat2', 'cat3 (opt.)'])
+                    column_names=['name', 'flag', 'cat1', 'cat2', 'cat3', 'issue_message'],
+                    column_widths=[250, 35, 80, 80, 80, 250],
+                    heading_names=['name', 'flag', 'cat1', 'cat2', 'cat3 (opt.)', 'issue message'])
 
     # Run application
     root.mainloop()
