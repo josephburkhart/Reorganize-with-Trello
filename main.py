@@ -279,6 +279,11 @@ class MainApplication:
         # Remove the rows that were processed from the table
         for id in row_ids_for_processing:
             self.table.tree.delete(id)
+        
+        # Exit window if all rows were processed
+        # Note: could also use len(row_ids) == len(row_ids_for_processing)
+        if self.table.tree.get_children() == ():
+            self.exit_app()
 
     def load_config(self):
         '''Loads settings from a YAML configuration file, checks to make sure 
