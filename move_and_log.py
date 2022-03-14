@@ -67,21 +67,21 @@ def move(source: Path, destination: Path, base_dir: Path, sep: str):
 
 def move_message(source: Path, destination: Path, base_dir: Path, sep: str):
     '''Compose a message describing the movement
-    Note that table_entry must have the following attributes: name'''
+    Note that table_entry must have the following attributes: name
+    sep is the path delimiter that will be used in the returned message'''
     s = sep
-    short_source = shorten_path(source, base_dir)
-    short_dest = shorten_path(destination, base_dir)
     if source.is_dir():
         name = f"{s}{source.name}{s}"
     else:
         name = f"{source.name}"
-    move_msg = f"moved {name} in {short_source.parent}{s} to {short_dest.parent}{s}\n"
+    move_msg = f"moved {name} in {source.parent}{s} to {destination.parent}{s}\n"
     return move_msg
 
 def error_message(table_entry, source: Path, base_dir: Path, short_paths: bool, sep: str):
     '''Compose a message describing the movement error
     If short_paths=True, then the source path will be shortened to base_dir
-    Note that table_entry must have the following attributes: name, flag'''
+    Note that table_entry must have the following attributes: name, flag
+    sep is the path delimiter that will be used in the returned message'''
     s = sep
 
     # Determine the type of issue
