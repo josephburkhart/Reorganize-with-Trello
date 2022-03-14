@@ -242,7 +242,10 @@ class MainApplication:
             
             #paths for movement
             source = Path.cwd() / e.name
-            destination = Path(self.config['REORG_DIRECTORY']) / e.cat1 / e.cat2 / source.name
+            if e.cat3 != '':
+                destination = Path(self.config['REORG_DIRECTORY']) / e.cat1 / e.cat2 / e.cat3 / source.name
+            else:
+                destination = Path(self.config['REORG_DIRECTORY']) / e.cat1 / e.cat2 / source.name
 
             if e.flag == '':
                 # Move and log
