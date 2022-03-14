@@ -223,10 +223,18 @@ class MainApplication:
         # Compose data structure            TODO: make this more elegant
         TableEntry = namedtuple("TableEntry", 'name flag cat1 cat2 cat3')
         row_ids = self.table.tree.get_children()
+        row_ids_for_processing = [
+            id 
+            for id 
+            in row_ids 
+            if (self.table.tree.item(id)['values'][0] != '' or    #flag exists
+                (self.table.tree.item(id)['values'][1] != '' and  #cat1 and cat2 exist
+                self.table.tree.item(id)['values'][2] != ''))
+        ]
         table_entries = (
             TableEntry(self.table.tree.item(id)['text'], *self.table.tree.item(id)['values'])
-            for id in row_ids
-            if self.table.tree.item(id)['values'][1] != '' or  self.table.tree.item(id)['values'][2] != ''
+            for id 
+            in row_ids_for_processing
         )
 
         # Move the files and write to log
@@ -270,6 +278,10 @@ class MainApplication:
                                    self.config['MEMBER_IDS'], 
                                    self.config['API_KEY'], 
                                    self.config['OATH_TOKEN']) #TODO: make card_description an optional argument
+
+        # Remove the rows that were processed from the table
+        for id in row_ids_for_processing:
+            self.table.tree.delete(id)
 
     def load_config(self):
         '''Loads settings from a YAML configuration file, checks to make sure 
