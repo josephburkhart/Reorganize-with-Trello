@@ -22,6 +22,7 @@ import move_and_log
 from collections import namedtuple
 import time
 import ruamel.yaml
+import os
 
 def list_names(current_dir: Path):
     '''Returns a list of the absolute paths of the items in current_dir,
@@ -258,6 +259,10 @@ class MainApplication:
                                          message=msg)
 
             else:
+                if source.is_dir():
+                    print(f"Issue found at {source}{os.sep}")
+                else:
+                    print(f"Issue found at {source}")
                 # Log the error
                 msg = move_and_log.error_message(table_entry=e,
                                                  source=source,

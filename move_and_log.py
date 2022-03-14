@@ -80,11 +80,6 @@ def error_message(table_entry, source: Path, base_dir: Path, short_paths: bool):
     '''Compose a message describing the movement error
     If short_paths=True, then the source path will be shortened to base_dir
     Note that table_entry must have the following attributes: name, flag'''
-    if source.is_dir():
-        print(f"Issue found at {source}{os.sep}")
-    else:
-        print(f"Issue found at {source}")
-    
     # Determine the type of issue
     issues = {'d': 'Duplicate', 'u': 'Unclear'}
     issue_type = issues.get(table_entry.flag, 'Issue') #returns 'Issue' if flag is not 'd' or 'u'
