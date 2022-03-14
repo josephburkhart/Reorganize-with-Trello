@@ -32,21 +32,18 @@ def move(source: Path, destination: Path, base_dir: Path, sep: str):
     printing messages to the console as needed.
     sep is the path delimiter that will be used in console output'''
     s = sep
-
+    if source.is_dir():
+        name = f"{s}{source.name}{s}"
+    else:
+        name = f"{source.name}"
     # Check if the named file/directory exists
     if not source.exists():
-        if source.is_dir():
-            print(f"Warning: {s}{source.name}{s} does not exist in {source.parent}{s}\nMove has been skipped. Continuing...")
-        else:
-            print(f"Warning: {source.name} does not exist in {source.parent}{s}\nMove has been skipped. Continuing...")
+        print(f"Warning: {name} does not exist in {source.parent}{s}\nMove has been skipped. Continuing...")
         return
     
     # Check if there is a duplicate file/directory at the destination
     if destination.exists():
-        if source.is_dir():
-            print(f"Warning: {s}{source.name}{s} already exists in {destination.parent}{s}\nMove has been skipped. Continuing...")
-        else:
-            print(f"Warning: {source.name} already exists in {destination.parent}{s}\nMove has been skipped. Continuing...")
+        print(f"Warning: {name} already exists in {destination.parent}{s}\nMove has been skipped. Continuing...")
         return
     
     # Create destination folder if necessary    TODO: modify print statement to include base reorg directory
@@ -65,7 +62,7 @@ def move(source: Path, destination: Path, base_dir: Path, sep: str):
     # If name is a file, move it with shutil.move
     else:
         shutil.move(source, destination)
-        print(f"{source.name} has been moved to .{s}{shorten_path(destination.parent, base_dir)}{s}")
+        print(f"{name} has been moved to .{s}{shorten_path(destination.parent, base_dir)}{s}")
     return 0
 
 def move_message(source: Path, destination: Path, base_dir: Path, sep: str):
@@ -75,9 +72,10 @@ def move_message(source: Path, destination: Path, base_dir: Path, sep: str):
     short_source = shorten_path(source, base_dir)
     short_dest = shorten_path(destination, base_dir)
     if source.is_dir():
-        move_msg = f"moved {s}{source.name}{s} in {short_source.parent}{s} to {short_dest.parent}{s}\n"
+        name = f"{s}{source.name}{s}"
     else:
-        move_msg = f"moved {source.name} in {short_source.parent}{s} to {short_dest.parent}{s}\n"
+        name = f"{source.name}"
+    move_msg = f"moved {name} in {short_source.parent}{s} to {short_dest.parent}{s}\n"
     return move_msg
 
 def error_message(table_entry, source: Path, base_dir: Path, short_paths: bool, sep: str):
@@ -92,7 +90,7 @@ def error_message(table_entry, source: Path, base_dir: Path, short_paths: bool, 
     
     # Compose error message
     if source.is_dir():
-            name = f"{s}{table_entry.name}{s}"
+        name = f"{s}{table_entry.name}{s}"
     else:
         name = source.name
     
