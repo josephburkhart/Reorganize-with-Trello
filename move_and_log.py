@@ -27,28 +27,31 @@ def shorten_path(full_path: Path, base_dir: Path):    #ref: https://stackoverflo
     base_index = path_parts.index(base_dir.name)
     return Path(*path_parts[base_index:])    # * expands the tuple into a flat comma separated params
 
-def move(source: Path, destination: Path, base_dir: Path):
+def move(source: Path, destination: Path, base_dir: Path, sep: str):
     '''Moves specified item at source path to destination path,
-    printing messages to the console as needed'''
+    printing messages to the console as needed.
+    sep is the path delimiter that will be used in console output'''
+    s = sep
+
     # Check if the named file/directory exists
     if not source.exists():
         if source.is_dir():
-            print(f"Warning: {os.sep}{source.name}{os.sep} does not exist in {source.parent}{os.sep}\nMove has been skipped. Continuing...")
+            print(f"Warning: {s}{source.name}{s} does not exist in {source.parent}{s}\nMove has been skipped. Continuing...")
         else:
-            print(f"Warning: {source.name} does not exist in {source.parent}{os.sep}\nMove has been skipped. Continuing...")
+            print(f"Warning: {source.name} does not exist in {source.parent}{s}\nMove has been skipped. Continuing...")
         return
     
     # Check if there is a duplicate file/directory at the destination
     if destination.exists():
         if source.is_dir():
-            print(f"Warning: {os.sep}{source.name}{os.sep} already exists in {destination.parent}{os.sep}\nMove has been skipped. Continuing...")
+            print(f"Warning: {s}{source.name}{s} already exists in {destination.parent}{s}\nMove has been skipped. Continuing...")
         else:
-            print(f"Warning: {source.name} already exists in {destination.parent}{os.sep}\nMove has been skipped. Continuing...")
+            print(f"Warning: {source.name} already exists in {destination.parent}{s}\nMove has been skipped. Continuing...")
         return
     
     # Create destination folder if necessary    TODO: modify print statement to include base reorg directory
     if not destination.parent.exists():
-        print(f"Destination does not exist: .{os.sep}{destination.parent.parent.name}{os.sep}{destination.parent.name}{os.sep} \nCreating destination...", end="")
+        print(f"Destination does not exist: .{s}{destination.parent.parent.name}{s}{destination.parent.name}{s} \nCreating destination...", end="")
         destination.parent.mkdir(parents=True, exist_ok=False) #all intermediate folders are also created
         print("Done\n")
     
@@ -57,44 +60,47 @@ def move(source: Path, destination: Path, base_dir: Path):
         #destination.mkdir(parents=False, exist_ok=False)    
         copy_tree(str(source), str(destination), preserve_times=True)
         shutil.rmtree(source)
-        print(f"{os.sep}{source.name}{os.sep} has been moved to .{os.sep}{shorten_path(destination.parent, base_dir)}{os.sep}")
+        print(f"{s}{source.name}{s} has been moved to .{s}{shorten_path(destination.parent, base_dir)}{s}")
     
     # If name is a file, move it with shutil.move
     else:
         shutil.move(source, destination)
-        print(f"{source.name} has been moved to .{os.sep}{shorten_path(destination.parent, base_dir)}{os.sep}")
+        print(f"{source.name} has been moved to .{s}{shorten_path(destination.parent, base_dir)}{s}")
     return 0
 
-def move_message(source: Path, destination: Path, base_dir: Path):
+def move_message(source: Path, destination: Path, base_dir: Path, sep: str):
     '''Compose a message describing the movement
     Note that table_entry must have the following attributes: name'''
+    s = sep
     short_source = shorten_path(source, base_dir)
     short_dest = shorten_path(destination, base_dir)
     if source.is_dir():
-        move_msg = f"moved {os.sep}{source.name}{os.sep} in {short_source.parent}{os.sep} to {short_dest.parent}{os.sep}\n"
+        move_msg = f"moved {s}{source.name}{s} in {short_source.parent}{s} to {short_dest.parent}{s}\n"
     else:
-        move_msg = f"moved {source.name} in {short_source.parent}{os.sep} to {short_dest.parent}{os.sep}\n"
+        move_msg = f"moved {source.name} in {short_source.parent}{s} to {short_dest.parent}{s}\n"
     return move_msg
 
-def error_message(table_entry, source: Path, base_dir: Path, short_paths: bool):
+def error_message(table_entry, source: Path, base_dir: Path, short_paths: bool, sep: str):
     '''Compose a message describing the movement error
     If short_paths=True, then the source path will be shortened to base_dir
     Note that table_entry must have the following attributes: name, flag'''
+    s = sep
+
     # Determine the type of issue
     issues = {'d': 'Duplicate', 'u': 'Unclear'}
     issue_type = issues.get(table_entry.flag, 'Issue') #returns 'Issue' if flag is not 'd' or 'u'
     
     # Compose error message
     if source.is_dir():
-            name = f"{os.sep}{table_entry.name}{os.sep}"
+            name = f"{s}{table_entry.name}{s}"
     else:
         name = source.name
     
     if short_paths:
         source = shorten_path(source, base_dir)
-        error_msg = f"{issue_type}: {name} in .{os.sep}{source.parent}{os.sep}"
+        error_msg = f"{issue_type}: {name} in .{s}{source.parent}{s}"
     else:
-        error_msg = f"{issue_type}: {name} in {source.parent}{os.sep}"
+        error_msg = f"{issue_type}: {name} in {source.parent}{s}"
     return error_msg
 
 def log_message(log_file_path: Path, time, message):

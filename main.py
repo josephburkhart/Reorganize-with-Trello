@@ -248,11 +248,13 @@ class MainApplication:
                 # Move and log
                 move_and_log.move(source=source,
                                   destination=destination, 
-                                  base_dir=Path(self.config['BASE_DIRECTORY'])) #TODO: make exception for when cat3 does not exist
+                                  base_dir=Path(self.config['BASE_DIRECTORY']),
+                                  sep=os.sep) #TODO: make exception for when cat3 does not exist
                 
                 msg = move_and_log.move_message(source=source, 
                                                 destination=destination, 
-                                                base_dir=Path(self.config['BASE_DIRECTORY']))
+                                                base_dir=Path(self.config['BASE_DIRECTORY']),
+                                                sep=os.sep)
                 
                 move_and_log.log_message(log_file_path=Path(self.config['CHANGE_LOG_PATH']), 
                                          time=current_time, 
@@ -267,7 +269,8 @@ class MainApplication:
                 msg = move_and_log.error_message(table_entry=e,
                                                  source=source,
                                                  base_dir=Path(self.config['BASE_DIRECTORY']),
-                                                 short_paths=False)
+                                                 short_paths=False,
+                                                 sep=os.sep)
                 move_and_log.log_message(log_file_path=Path(self.config['ERROR_LOG_PATH']), 
                                          time=current_time, 
                                          message=msg)
@@ -276,7 +279,8 @@ class MainApplication:
                 card_name = move_and_log.error_message(table_entry=e,
                                                  source=source,
                                                  base_dir=Path(self.config['BASE_DIRECTORY']),
-                                                 short_paths=True)
+                                                 short_paths=True,
+                                                 sep=os.sep)
                 card_description = ""
                 trello.create_card(self.config['LIST_ID'], 
                                    card_name, 
