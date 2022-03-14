@@ -33,28 +33,29 @@ def list_names(current_dir: Path):
     return contents
 
 class Table:
-    def __init__(self, parent, row_names, column_names, column_widths):
+    def __init__(self, parent, row_names, column_names, column_widths, heading_names):
         # Initialize Treeview
         self.tree = ttk.Treeview(parent, height=15)
         self.tree.grid(row=0, column=0, columnspan=2, sticky='n')
 
         # Initialize instance attributes
+        self.row_names = row_names
         self.column_names = column_names
         self.column_widths = column_widths
-        self.row_names = row_names
+        self.heading_names = heading_names
 
         # Create columns and headings
         self.tree['columns']= tuple(self.column_names[1:])  #used for indexing, first name omitted because it is always set to #0
 
         self.tree.column("#0", width=self.column_widths[0], stretch='yes')    #first column and heading must be separately defined
-        self.tree.heading("#0", text=self.column_names[0], anchor='center')   #this column is special because it can be used to display a tree with nested elements
+        self.tree.heading("#0", text=self.heading_names[0], anchor='center')   #this column is special because it can be used to display a tree with nested elements
 
         self.tree.column(self.column_names[1], width=self.column_widths[1], anchor='center', stretch='yes')  #define flag column separately with center anchor
-        self.tree.heading(self.column_names[1],text=self.column_names[1],anchor='center')
+        self.tree.heading(self.column_names[1], text=self.heading_names[1],anchor='center')
 
         for i in range(2,len(self.column_names)):
             self.tree.column(self.column_names[i], width=self.column_widths[i], anchor='w', stretch='no')
-            self.tree.heading(self.column_names[i],text=self.column_names[i],anchor='center')
+            self.tree.heading(self.column_names[i], text=self.heading_names[i],anchor='center')
 
         # Add Data
         self.default_values = tuple('' for name in range(1,len(column_names)))
@@ -152,24 +153,30 @@ class EntryPopup(tk.Entry):
         return 'break'
 
 class MainApplication:
-    def __init__(self, parent, config_path):
+    def __init__(self, parent, config_path, column_names, column_widths, heading_names):
         self.parent = parent
         self.config_path = config_path
+        
+        # Check for input errors
+        if not len(column_names) == len(column_widths) == len(heading_names):
+            print("Error: column_names, column_widths, and heading_names must be lists of identical length")
+            self.exit_app()
 
         # Import config
         self.config = self.load_config(self.config_path)
         
         # Initialize Data
         self.row_names = list_names(current_dir=Path.cwd())
-        self.column_names = ['filename', 'flag', 'cat1', 'cat2', 'cat3 (opt.)']
-        self.column_widths = [250, 35, 80, 80, 80]
+        self.column_names = column_names
+        self.column_widths = column_widths
+        self.heading_names = heading_names
 
         # Create table frame
         self.tableframe = tk.Frame(self.parent)
         self.tableframe.grid(row=0, column=0, columnspan=2, sticky='n')
         
         # Create table (note that packing of table happens inside the class - could be brought outside if Table was a subclass of ttk.Treeview)
-        self.table = Table(self.tableframe, self.row_names, self.column_names, self.column_widths)
+        self.table = Table(self.tableframe, self.row_names, self.column_names, self.column_widths, self.heading_names)
 
         # Create scrollbar
         self.scrollbar = ttk.Scrollbar(self.tableframe, orient='vertical', command=self.table.tree.yview)
@@ -219,7 +226,7 @@ class MainApplication:
 
     def process_entries(self):
         # Compose data structure            TODO: make this more elegant
-        TableEntry = namedtuple("TableEntry", 'name flag cat1 cat2 cat3')
+        TableEntry = namedtuple("TableEntry", ' '.join(self.column_names))
         row_ids = self.table.tree.get_children()
         row_ids_for_processing = [
             id 
@@ -361,8 +368,11 @@ if __name__ == "__main__":
     root.grid_columnconfigure(0, weight=1)
 
     # Create GUI
-    config_path = Path(__file__).parent / 'testconfig.yml'
-    MainApplication(root, config_path)
+    MainApplication(parent=root, 
+                    config_path=Path(__file__).parent / 'testconfig.yml',
+                    column_names=['name', 'flag', 'cat1', 'cat2', 'cat3'],
+                    column_widths=[250, 35, 80, 80, 80],
+                    heading_names=['name', 'flag', 'cat1', 'cat2', 'cat3 (opt.)'])
 
     # Run application
     root.mainloop()
