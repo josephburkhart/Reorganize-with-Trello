@@ -74,10 +74,10 @@ class Table:
         read-only EntryPopup above the item's column, so it is possible
         to select text '''
 
-        # What row and column was clicked on    TODO: make this part not allow editing of paths in column 1
+        # What row and column was clicked on
         row_id = self.tree.identify_row(event.y)
         col_id = self.tree.identify_column(event.x)
-        col_num = int(col_id[1:])                   #remove # and convert to int, to use for indexing 'values' below
+        col_num = int(col_id[1:])     #remove # and convert to int, to use for indexing 'values' below
 
         # Get column position info
         x,y,width,height = self.tree.bbox(row_id, col_id)
@@ -120,16 +120,15 @@ class Table:
         print('current value = ', cell_value)
 
 class EntryPopup(tk.Entry):
-
-    def __init__(self, parent, iid, col_num, text, **kw):
+    def __init__(self, parent, row_id, col_num, text, **kw):
         ''' If relwidth is set, then width is ignored '''
         super().__init__(parent, **kw)
         self.parent = parent
-        self.iid = iid          #this is just row_id
+        self.row_id = row_id
         self.col_num = col_num
 
         self.insert(0, text) 
-        self['exportselection'] = False #TODO: remove??
+        self['exportselection'] = False
 
         self.focus_force()
         self.bind("<Escape>", lambda *ignore: self.destroy())       #destroy() accepts no arguments so anonymous function is necessary
@@ -140,12 +139,12 @@ class EntryPopup(tk.Entry):
     def insert_text_and_destroy(self, *ignore):
         ''' Add the text in EntryPopup to the corresponding cell in parent'''
         if self.col_num == 0:                        #value for col 0 is in 'text'
-            self.parent.item(self.iid, text=self.get())
+            self.parent.item(self.row_id, text=self.get())
         else:                                   #Note: there has to be a more elegant way of modifying current row's values than calling item() twice
-            current_item = self.parent.item(self.iid)
+            current_item = self.parent.item(self.row_id)
             values = current_item['values']
             values[self.col_num-1] = self.get()
-            self.parent.item(self.iid, values=values)
+            self.parent.item(self.row_id, values=values)
         self.destroy()
 
     def select_all(self, *ignore):
