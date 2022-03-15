@@ -231,14 +231,16 @@ class MainApplication:
                 (self.table.tree.item(id)['values'][1] != '' and  #cat1 and cat2 exist
                 self.table.tree.item(id)['values'][2] != ''))
         ]
-        table_entries = (
-            TableEntry(self.table.tree.item(id)['text'], *self.table.tree.item(id)['values'])
-            for id 
-            in row_ids_for_processing
-        )
+        table_entries = []
+        for id in row_ids_for_processing:
+            table_entries.append(
+                TableEntry(self.table.tree.item(id)['text'], *self.table.tree.item(id)['values'])
+            )
 
         # Move the files and write to log
-        for e in table_entries:
+        for i in range(len(table_entries)):
+            e = table_entries[i]
+            
             # Current time will be used in log messages  TODO: put this inside the log_message function
             current_time = time.strftime('%Y-%m-%d %H:%M:%S %z', time.localtime(time.time()))
             
@@ -249,28 +251,34 @@ class MainApplication:
             else:
                 destination = Path(self.config['REORG_DIRECTORY']) / e.cat1 / e.cat2 / source.name
 
+            # If there is no  flag, attempt the move and skip it if there's a MoveError
             if e.flag == '':
-                # Move and log
-                move_and_log.move(source=source,
-                                  destination=destination, 
-                                  base_dir=Path(self.config['BASE_DIRECTORY']),
-                                  sep=os.sep) #TODO: make exception for when cat3 does not exist
+                try:
+                    move_and_log.move(source=source,
+                                    destination=destination, 
+                                    base_dir=Path(self.config['BASE_DIRECTORY']),
+                                    sep=os.sep)
+                except move_and_log.MoveError:
+                    row_ids_for_processing.remove(row_ids_for_processing[i])
+                    print('Move has been skipped. Continuing...\n')
+                    continue
                 
-                msg = move_and_log.move_message(source=source, 
-                                                destination=destination, 
-                                                base_dir=Path(self.config['BASE_DIRECTORY']),
-                                                sep=os.sep)
-                
-                move_and_log.log_message(log_file_path=Path(self.config['CHANGE_LOG_PATH']), 
-                                         time=current_time, 
-                                         message=msg)
-
+                else:                
+                    msg = move_and_log.move_message(source=source, 
+                                                    destination=destination, 
+                                                    base_dir=Path(self.config['BASE_DIRECTORY']),
+                                                    sep=os.sep)
+                    move_and_log.log_message(log_file_path=Path(self.config['CHANGE_LOG_PATH']), 
+                                            time=current_time, 
+                                            message=msg)
+            
+            # Flag error and log
             else:
                 if source.is_dir():
                     print(f"Issue found at {source}{os.sep}")
                 else:
                     print(f"Issue found at {source}")
-                # Log the error
+
                 msg = move_and_log.error_message(table_entry=e,
                                                  source=source,
                                                  base_dir=Path(self.config['BASE_DIRECTORY']),
