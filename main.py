@@ -2,6 +2,8 @@
 # that displays all of the contents and allows the user to change them
 # Ref: https://pythonguides.com/python-tkinter-table-tutorial/
 # Ref: https://stackoverflow.com/questions/18562123/how-to-make-ttk-treeviews-rows-editable
+# Ref: https://stackoverflow.com/questions/34699583/how-to-get-all-objects-in-a-window-with-their-settings
+# Ref: https://stackoverflow.com/questions/60954478/tkinter-treeview-doesnt-resize-with-window
 
 # To Do:
 #   modify code to accommodate cat3
@@ -90,7 +92,7 @@ class Table:
             text = self.tree.item(row_id, 'values')[col_num-1]
         
         # Create entry popup
-        self.entryPopup = EntryPopup(self.tree, row_id, col_num, text)
+        self.entryPopup = EntryPopup(self.tree, row_id, col_num, text, name=('ep_'+row_id+'_'+col_id))
 
         # Place Entry popup properly
         self.entryPopup.place( x=x, y=y+pady, width=width, height=height, anchor='w') #TODO: use relwidth param to make entrypopup size change dynamically with columns
@@ -131,11 +133,11 @@ class EntryPopup(tk.Entry):
 
         self.focus_force()
         self.bind("<Escape>", lambda *ignore: self.destroy())       #destroy() accepts no arguments so anonymous function is necessary
-        self.bind("<Return>", self.insert_text_and_destroy)         #* means this will work for any number of potential arguments
-        self.bind("<FocusOut>", self.insert_text_and_destroy)
+        self.bind("<Return>", lambda *ignore: self.insert_text_and_destroy())         #* means this will work for any number of potential arguments
+        self.bind("<FocusOut>", lambda *ignore: self.insert_text_and_destroy())
         self.bind("<Control-a>", self.select_all)
 
-    def insert_text_and_destroy(self, event):
+    def insert_text_and_destroy(self, *ignore):
         ''' Add the text in EntryPopup to the corresponding cell in parent'''
         if self.col_num == 0:                        #value for col 0 is in 'text'
             self.parent.item(self.iid, text=self.get())
@@ -226,6 +228,11 @@ class MainApplication:
         self.parent.destroy()
 
     def process_entries(self):
+        # Close all EntryPopups that are still open
+        popups = [widget for widget in self.table.tree.winfo_children() if widget.winfo_class()=='Entry']
+        for p in popups:
+            p.insert_text_and_destroy()
+        
         # Compose data structure            TODO: make this more elegant
         TableEntry = namedtuple("TableEntry", ' '.join(self.column_names))
         row_ids = self.table.tree.get_children()
@@ -363,7 +370,7 @@ if __name__ == "__main__":
     root.title('Reorganize with Trello')
     root.geometry('795x500')
 
-    # Enable resizing of main window contents - https://stackoverflow.com/questions/60954478/tkinter-treeview-doesnt-resize-with-window
+    # Enable resizing of main window contents
     root.grid_rowconfigure(0, weight=1)
     root.grid_columnconfigure(0, weight=1)
 
