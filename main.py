@@ -107,18 +107,6 @@ class Table:
         for item in current_items:
             self.tree.delete(item)
 
-    def select_item(self, event):
-        '''gets information about the currently selected cell in treeview
-        Ref: https://stackoverflow.com/questions/48268506/select-a-cell-in-tkinter-treeview-and-get-the-cell-data'''
-        curItem = self.tree.item(self.tree.focus()) #this returns a dict, such as {'text': '', 'image': '', 'values': ['', '', ''], 'open': 0, 'tags': ['clickable']}
-        col = self.tree.identify_column(event.x)
-        col_num = int(col[1:])                      #remove the # symbol
-        print ('curItem = ', curItem)
-        print ('col_num = ', col_num)
-
-        cell_value = curItem['values'][col_num-1]
-        print('current value = ', cell_value)
-
 class EntryPopup(tk.Entry):
     def __init__(self, parent, row_id, col_num, text, **kw):
         ''' If relwidth is set, then width is ignored '''
