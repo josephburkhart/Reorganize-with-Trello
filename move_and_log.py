@@ -98,9 +98,9 @@ def error_message(table_entry, source: Path, base_dir: Path, short_paths: bool, 
     
     if short_paths:
         source = shorten_path(source, base_dir)
-        error_msg = f"{issue_type}: {name} in .{s}{source.parent}{s}"
+        error_msg = f"{issue_type}: {name} in .{s}{source.parent}{s}\n"
     else:
-        error_msg = f"{issue_type}: {name} in {source.parent}{s}"
+        error_msg = f"{issue_type}: {name} in {source.parent}{s}\n"
     return error_msg
 
 def log_message(log_file_path: Path, time, message):
