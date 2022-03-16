@@ -143,9 +143,11 @@ class EntryPopup(tk.Entry):
         return 'break'
 
 class MainApplication:
-    def __init__(self, parent, config_path, column_names, column_widths, heading_names):
+    def __init__(self, parent, config_path, error_log_path, change_log_path, column_names, column_widths, heading_names):
         self.parent = parent
         self.config_path = config_path
+        self.error_log_path = error_log_path
+        self.change_log_path = change_log_path
         
         # Check for input errors
         if not len(column_names) == len(column_widths) == len(heading_names):
@@ -268,7 +270,7 @@ class MainApplication:
                                                     destination=destination, 
                                                     base_dir=Path(self.config['BASE_DIRECTORY']),
                                                     sep=os.sep)
-                    move_and_log.log_message(log_file_path=Path(self.config['CHANGE_LOG_PATH']), 
+                    move_and_log.log_message(log_file_path=self.change_log_path, 
                                             time=current_time, 
                                             message=msg)
             
@@ -284,7 +286,7 @@ class MainApplication:
                                                  base_dir=Path(self.config['BASE_DIRECTORY']),
                                                  short_paths=False,
                                                  sep=os.sep)
-                move_and_log.log_message(log_file_path=Path(self.config['ERROR_LOG_PATH']), 
+                move_and_log.log_message(log_file_path=self.error_log_path, 
                                          time=current_time, 
                                          message=msg)
 
@@ -294,7 +296,7 @@ class MainApplication:
                                                  base_dir=Path(self.config['BASE_DIRECTORY']),
                                                  short_paths=True,
                                                  sep=os.sep)
-                trello.create_card(list_id=self.config['LIST_ID']+'asd', 
+                trello.create_card(list_id=self.config['LIST_ID'], 
                                    card_name=card_name, 
                                    card_description=e.issue_message,
                                    member_ids=self.config['MEMBER_IDS'], 
@@ -326,11 +328,7 @@ class MainApplication:
             raise ConfigError(f'name(s) missing in {config_path}')
 
         # Check that all paths are present, and if they aren't throw an error
-        if (config['ERROR_LOG_PATH'] == None or
-            config['CHANGE_LOG_PATH'] == None or
-            config['BASE_DIRECTORY'] == None or
-            config['REORG_DIRECTORY'] == None):
-
+        if (config['BASE_DIRECTORY'] == None or config['REORG_DIRECTORY'] == None):
             raise ConfigError(f'path(s) missing in {config_path}')
             
         # Check that all IDs are present, and if they aren't...
@@ -386,6 +384,8 @@ if __name__ == "__main__":
     # Create GUI
     MainApplication(parent=root, 
                     config_path=Path(__file__).parent / 'testconfig.yml',
+                    error_log_path=Path(__file__).parent / 'error.log',
+                    change_log_path=Path(__file__).parent / 'change.log',
                     column_names=['name', 'flag', 'cat1', 'cat2', 'cat3', 'issue_message'],
                     column_widths=[250, 35, 80, 80, 80, 250],
                     heading_names=['name', 'flag', 'cat1', 'cat2', 'cat3 (opt.)', 'issue message'])

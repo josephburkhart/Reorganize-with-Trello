@@ -5,8 +5,6 @@
     # - if IDs are missing from this file, main.py will try to find them automatically
 
 # Path settings
-ERROR_LOG_PATH: C:\full\path\to\errors.log
-CHANGE_LOG_PATH: C:\full\path\to\changes.log
 BASE_DIRECTORY: C:\full\path\to\reorganize-with-trello
 REORG_DIRECTORY: C:\full\path\to\testdirectory2
 
