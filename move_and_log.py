@@ -45,9 +45,9 @@ def path_from_common_parent(mainpath: Path, comparepath: Path, parent_index: int
     return Path(*mainpath_parts[base_index:])
 
 def move(source: Path, destination: Path, shorten_index: int, sep: str):
-    '''Moves specified item at source path to destination path,
+    """Moves specified item at source path to destination path,
     printing messages to the console as needed.
-    sep is the path delimiter that will be used in console output'''
+    sep is the path delimiter that will be used in console output"""
     s = sep
     if source.is_dir():
         name = f"{s}{source.name}{s}"
@@ -89,9 +89,9 @@ def move(source: Path, destination: Path, shorten_index: int, sep: str):
     return 0
 
 def move_message(source: Path, destination: Path, sep: str):
-    '''Compose a message describing the movement
+    """Compose a message describing the movement
     Note that table_entry must have the following attributes: name
-    sep is the path delimiter that will be used in the returned message'''
+    sep is the path delimiter that will be used in the returned message"""
     s = sep
     if source.is_dir():
         name = f"{s}{source.name}{s}"
@@ -101,13 +101,13 @@ def move_message(source: Path, destination: Path, sep: str):
     return move_msg
 
 def error_message(table_entry, source: Path, short_paths: bool, sep: str, **kwargs):
-    '''Compose a message describing the movement error
+    """Compose a message describing the movement error
     If short_paths=True, then the source path will be shortened to base_dir
     - table_entry must have the following attributes: name, flag
     - sep is the path delimiter that will be used in the returned message
     - if short_paths is True, the following keyword arguments must be provided:
       - reorgpath: Path
-      - shorten_index: int'''
+      - shorten_index: int"""
     s = sep
 
     # Determine the type of issue
@@ -138,7 +138,7 @@ def error_message(table_entry, source: Path, short_paths: bool, sep: str, **kwar
     return error_msg
 
 def log_message(log_file_path: Path, time, message):
-    '''Write a timestamped message to a logfile'''
+    """Write a timestamped message to a logfile"""
     with log_file_path.open(mode='a') as log_file:
             log_file.write(time + ' --- ' + message)
 

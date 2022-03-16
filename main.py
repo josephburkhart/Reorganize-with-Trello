@@ -28,8 +28,8 @@ import ruamel.yaml
 import os
 
 def list_names(current_dir: Path):
-    '''Returns a list of the absolute paths of the items in current_dir,
-    with directories before files'''
+    """Returns a list of the absolute paths of the items in current_dir,
+    with directories before files"""
     dirs = [p.name for p in current_dir.iterdir() if p.is_dir()]
     files = [p.name for p in current_dir.iterdir() if p.is_file()]
     contents = dirs + files
@@ -70,9 +70,9 @@ class Table:
         self.tree.bind("<Delete>", self.delete_rows)
 
     def make_popup(self, event):
-        ''' Executed, when a row is double-clicked. Opens 
+        """ Executed, when a row is double-clicked. Opens 
         read-only EntryPopup above the item's column, so it is possible
-        to select text '''
+        to select text """
 
         # What row and column was clicked on
         row_id = self.tree.identify_row(event.y)
@@ -102,14 +102,14 @@ class Table:
             self.entryPopup['justify'] = 'center'
 
     def delete_rows(self, event):
-        '''deletes the currently selected rows'''
+        """deletes the currently selected rows"""
         current_items = self.tree.selection()   #TODO: should I use tree.focus() instead?
         for item in current_items:
             self.tree.delete(item)
 
 class EntryPopup(tk.Entry):
     def __init__(self, parent, row_id, col_num, text, **kw):
-        ''' If relwidth is set, then width is ignored '''
+        """ If relwidth is set, then width is ignored """
         super().__init__(parent, **kw)
         self.parent = parent
         self.row_id = row_id
@@ -125,7 +125,7 @@ class EntryPopup(tk.Entry):
         self.bind("<Control-a>", self.select_all)
 
     def insert_text_and_destroy(self, *ignore):
-        ''' Add the text in EntryPopup to the corresponding cell in parent'''
+        """ Add the text in EntryPopup to the corresponding cell in parent"""
         if self.col_num == 0:                        #value for col 0 is in 'text'
             self.parent.item(self.row_id, text=self.get())
         else:                                   #Note: there has to be a more elegant way of modifying current row's values than calling item() twice
@@ -136,7 +136,7 @@ class EntryPopup(tk.Entry):
         self.destroy()
 
     def select_all(self, *ignore):
-        ''' Set selection on the whole text '''
+        """ Set selection on the whole text """
         self.selection_range(0, 'end')
 
         # Return 'break' to interrupt default key-bindings
@@ -207,7 +207,7 @@ class MainApplication:
         self.exit_button.grid(row=0, column=1)
 
     def exit_app(self):
-        '''Close the main window'''
+        """Close the main window"""
         self.parent.destroy()
 
     def process_entries(self):
@@ -306,8 +306,8 @@ class MainApplication:
             self.exit_app()
 
     def load_config(self, config_path):
-        '''Loads settings from a YAML configuration file, checks to make sure 
-        all IDs are present, and then returns the settings as a dictionary'''
+        """Loads settings from a YAML configuration file, checks to make sure 
+        all IDs are present, and then returns the settings as a dictionary"""
         with open(config_path) as config_file:
             yaml = ruamel.yaml.YAML()
             config = yaml.load(config_file)
