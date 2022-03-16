@@ -185,12 +185,6 @@ class MainApplication:
         self.cwdmessage = tk.Message(self.infoframe, text=str(Path.cwd()), width=750, justify='left')
         self.cwdmessage.grid(row=0, column=1, sticky='w')
 
-        bdtext = 'Base Directory:\t\t' + self.config['BASE_DIRECTORY']
-        self.bdlabel = tk.Label(self.infoframe, text='Base Directory:\t', font='Calibri 10 bold')
-        self.bdlabel.grid(row=1, column=0, sticky='n')
-        self.bdmessage = tk.Message(self.infoframe, text=self.config['BASE_DIRECTORY'], width=750, justify='left')
-        self.bdmessage.grid(row=1, column=1, sticky='w')
-
         self.rdlabel = tk.Label(self.infoframe, text='Reorg Directory:\t', font='Calibri 10 bold')
         self.rdlabel.grid(row=2, column=0, sticky='n')
         self.rdmessage = tk.Message(self.infoframe, text=self.config['REORG_DIRECTORY'], width=750, justify='left')
@@ -258,7 +252,7 @@ class MainApplication:
                 try:
                     move_and_log.move(source=source,
                                     destination=destination, 
-                                    base_dir=Path(self.config['BASE_DIRECTORY']),
+                                    shorten_index=-1,
                                     sep=os.sep)
                 except move_and_log.MoveError:
                     row_ids_for_processing.remove(row_ids_for_processing[i])
@@ -268,7 +262,6 @@ class MainApplication:
                 else:                
                     msg = move_and_log.move_message(source=source, 
                                                     destination=destination, 
-                                                    base_dir=Path(self.config['BASE_DIRECTORY']),
                                                     sep=os.sep)
                     move_and_log.log_message(log_file_path=self.change_log_path, 
                                             time=current_time, 
@@ -283,7 +276,6 @@ class MainApplication:
 
                 msg = move_and_log.error_message(table_entry=e,
                                                  source=source,
-                                                 base_dir=Path(self.config['BASE_DIRECTORY']),
                                                  short_paths=False,
                                                  sep=os.sep)
                 move_and_log.log_message(log_file_path=self.error_log_path, 
@@ -293,9 +285,10 @@ class MainApplication:
                 # Make an issue card
                 card_name = move_and_log.error_message(table_entry=e,
                                                  source=source,
-                                                 base_dir=Path(self.config['BASE_DIRECTORY']),
                                                  short_paths=True,
-                                                 sep=os.sep)
+                                                 sep=os.sep,
+                                                 reorgpath=Path(self.config['REORG_DIRECTORY']),
+                                                 shorten_index=-1)
                 trello.create_card(list_id=self.config['LIST_ID'], 
                                    card_name=card_name, 
                                    card_description=e.issue_message,
@@ -328,7 +321,7 @@ class MainApplication:
             raise ConfigError(f'name(s) missing in {config_path}')
 
         # Check that all paths are present, and if they aren't throw an error
-        if (config['BASE_DIRECTORY'] == None or config['REORG_DIRECTORY'] == None):
+        if config['REORG_DIRECTORY'] == None:
             raise ConfigError(f'path(s) missing in {config_path}')
             
         # Check that all IDs are present, and if they aren't...

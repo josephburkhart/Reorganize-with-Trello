@@ -5,7 +5,6 @@
     # - if IDs are missing from this file, main.py will try to find them automatically
 
 # Path settings
-BASE_DIRECTORY: C:\full\path\to\basedirectory 
 REORG_DIRECTORY: C:\full\path\to\reorganizationdirectory (parent directory for all sorted files and folders)
 
 # Trello settings

@@ -21,13 +21,30 @@ from distutils.dir_util import copy_tree
 import shutil
 
 # Functions
-def shorten_path(full_path: Path, base_dir: Path):    #ref: https://stackoverflow.com/questions/53255659/from-pathlib-parts-tuple-to-string-path
+def shorten_path(full_path: Path, shorten_index: int):    #ref: https://stackoverflow.com/questions/53255659/from-pathlib-parts-tuple-to-string-path
     """Split the path into separate parts, select all elements after and including base_dir, and join them back together"""
     path_parts = full_path.parts
     base_index = path_parts.index(base_dir.name)
     return Path(*path_parts[base_index:])    # * expands the tuple into a flat comma separated params
 
-def move(source: Path, destination: Path, base_dir: Path, sep: str):
+def path_from_common_parent(mainpath: Path, comparepath: Path, parent_index: int):
+    """Takes two paths, makes an ordered list of their common parents, 
+    selects the common parent specified by parent_index, and returns
+    a new path from the selected parent to the end of the main path.
+    If parent_index is out of range, it is automatically set to 0."""
+    mainpath_parts = mainpath.parts
+    comparepath_parts = comparepath.parts
+    parts_in_common = [part for part in mainpath_parts if part in comparepath_parts]
+    
+    try:
+        base_part = parts_in_common[parent_index]
+    except IndexError:
+        base_part = parts_in_common[0]
+    
+    base_index = mainpath_parts.index(base_part)
+    return Path(*mainpath_parts[base_index:])
+
+def move(source: Path, destination: Path, shorten_index: int, sep: str):
     '''Moves specified item at source path to destination path,
     printing messages to the console as needed.
     sep is the path delimiter that will be used in console output'''
@@ -38,19 +55,23 @@ def move(source: Path, destination: Path, base_dir: Path, sep: str):
         name = f"{source.name}"
     print(f"Attempting to move {source.name}...")
 
+    # Create shortened paths
+    short_source_parent_path = path_from_common_parent(source.parent, destination, shorten_index)
+    short_dest_parent_path = path_from_common_parent(destination.parent, source, shorten_index)
+
     # Check if the named file/directory exists
     if not source.exists():
-        print(f"Warning: {name} does not exist in .{s}{shorten_path(source.parent, base_dir)}{s}")
+        print(f"Warning: {name} does not exist in .{s}{short_source_parent_path}{s}")
         raise MoveError('Source does not exist')
     
     # Check if there is a duplicate file/directory at the destination
     if destination.exists():
-        print(f"Warning: {name} already exists in .{s}{shorten_path(destination.parent, base_dir)}{s}")
+        print(f"Warning: {name} already exists in .{s}{short_dest_parent_path}{s}")
         raise MoveError('Source duplicated at destination')
     
     # Create destination folder if necessary    TODO: modify print statement to include base reorg directory
     if not destination.parent.exists():
-        print(f"Warning: destination does not exist: .{s}{shorten_path(destination.parent, base_dir)}{s}\nCreating destination... ", end="")
+        print(f"Warning: destination does not exist: .{s}{short_dest_parent_path}{s}\nCreating destination... ", end="")
         destination.parent.mkdir(parents=True, exist_ok=False) #all intermediate folders are also created
         print("Done")
     
@@ -64,10 +85,10 @@ def move(source: Path, destination: Path, base_dir: Path, sep: str):
     else:
         shutil.move(source, destination)
 
-    print(f"{name} has been moved to .{s}{shorten_path(destination.parent, base_dir)}{s}\n")
+    print(f"{name} has been moved to .{s}{short_dest_parent_path}{s}\n")
     return 0
 
-def move_message(source: Path, destination: Path, base_dir: Path, sep: str):
+def move_message(source: Path, destination: Path, sep: str):
     '''Compose a message describing the movement
     Note that table_entry must have the following attributes: name
     sep is the path delimiter that will be used in the returned message'''
@@ -79,26 +100,39 @@ def move_message(source: Path, destination: Path, base_dir: Path, sep: str):
     move_msg = f"moved {name} in {source.parent}{s} to {destination.parent}{s}\n"
     return move_msg
 
-def error_message(table_entry, source: Path, base_dir: Path, short_paths: bool, sep: str):
+def error_message(table_entry, source: Path, short_paths: bool, sep: str, **kwargs):
     '''Compose a message describing the movement error
     If short_paths=True, then the source path will be shortened to base_dir
-    Note that table_entry must have the following attributes: name, flag
-    sep is the path delimiter that will be used in the returned message'''
+    - table_entry must have the following attributes: name, flag
+    - sep is the path delimiter that will be used in the returned message
+    - if short_paths is True, the following keyword arguments must be provided:
+      - reorgpath: Path
+      - shorten_index: int'''
     s = sep
 
     # Determine the type of issue
     issues = {'d': 'Duplicate', 'u': 'Unclear'}
     issue_type = issues.get(table_entry.flag, 'Issue') #returns 'Issue' if flag is not 'd' or 'u'
     
-    # Compose error message
+    # Add leading and trailing backslashes to directory names
     if source.is_dir():
         name = f"{s}{table_entry.name}{s}"
     else:
         name = source.name
-    
+
+    # If necessary, obtain short path parameters
     if short_paths:
-        source = shorten_path(source, base_dir)
-        error_msg = f"{issue_type}: {name} in .{s}{source.parent}{s}\n"
+        try:
+            comparepath = kwargs['reorgpath']
+            shorten_index = kwargs['shorten_index']
+        except KeyError:
+            print('Warning: parameters \'reorgpath\' and \'shorten_index\' not provided in move_and_log.error_message(). Using full paths...')
+            short_paths = False
+    
+    # Compose error message
+    if short_paths:
+            short_source_parent_path = path_from_common_parent(source.parent, comparepath, shorten_index)
+            error_msg = f"{issue_type}: {name} in .{s}{short_source_parent_path}{s}\n"
     else:
         error_msg = f"{issue_type}: {name} in {source.parent}{s}\n"
     return error_msg
