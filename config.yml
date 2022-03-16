@@ -5,8 +5,8 @@
     # - if IDs are missing from this file, main.py will try to find them automatically
 
 # Path settings
-BASE_DIRECTORY: C:\full\path\to\reorganize-with-trello
-REORG_DIRECTORY: C:\full\path\to\testdirectory2
+BASE_DIRECTORY: C:\full\path\to\basedirectory 
+REORG_DIRECTORY: C:\full\path\to\reorganizationdirectory (parent directory for all sorted files and folders)
 
 # Trello settings
 API_KEY: your_key
@@ -16,7 +16,7 @@ LIST_NAME: your_list_name
 MEMBER_NAMES:
 - your_username1
 - your_username2
-- etc
+- your_username3
 BOARD_ID:
 LIST_ID:
 MEMBER_IDS:
