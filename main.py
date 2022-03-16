@@ -294,7 +294,7 @@ class MainApplication:
                                                  base_dir=Path(self.config['BASE_DIRECTORY']),
                                                  short_paths=True,
                                                  sep=os.sep)
-                trello.create_card(list_id=self.config['LIST_ID'], 
+                trello.create_card(list_id=self.config['LIST_ID']+'asd', 
                                    card_name=card_name, 
                                    card_description=e.issue_message,
                                    member_ids=self.config['MEMBER_IDS'], 
@@ -339,11 +339,25 @@ class MainApplication:
             (config['MEMBER_IDS'] == None and config['MEMBER_NAMES'] != None)):
             
             # Find them...
-            print(f'Warning: ID(s) missing in {config_path}. Attempting to find IDs...')
-            config['BOARD_ID'] = trello.find_board(config['BOARD_NAME'], config['API_KEY'], config['OATH_TOKEN'])
-            config['LIST_ID'] = trello.find_list(config['BOARD_ID'], config['LIST_NAME'], config['API_KEY'], config['OATH_TOKEN'])
-            config['MEMBER_IDS'] = trello.find_members(config['MEMBER_NAMES'], config['API_KEY'], config['OATH_TOKEN'])
+            print(f'Warning: ID(s) missing in {config_path}. Attempting to find IDs...\n')
+            try:
+                config['BOARD_ID'] = trello.find_board(config['BOARD_NAME'], config['API_KEY'], config['OATH_TOKEN'])
+            except trello.TrelloError:
+                print(f"Error! Board not found: {config['BOARD_NAME']}. Exiting app...")
+                raise SystemExit
             
+            try:
+                config['LIST_ID'] = trello.find_list(config['BOARD_ID'], config['LIST_NAME'], config['API_KEY'], config['OATH_TOKEN'])
+            except trello.TrelloError:
+                print(f"Error! List not found: {config['LIST_NAME']}. Exiting app...")
+                raise SystemExit
+            
+            config['MEMBER_IDS'] = trello.find_members(config['MEMBER_NAMES'], config['API_KEY'], config['OATH_TOKEN'])
+            if len(config['MEMBER_IDS']) == len(config['MEMBER_NAMES']):
+                print ("All members found\n") 
+            else:
+                print("Warning! some members not found. Continuing...\n")
+
             # Write them to the config file...
             with open(config_path, 'w') as config_file:
                 yaml = ruamel.yaml.YAML()
@@ -353,7 +367,7 @@ class MainApplication:
             with open(config_path) as config_file:
                 yaml = ruamel.yaml.YAML()
                 config = yaml.load(config_file)
-        
+
         return config
 
 class ConfigError(Exception):

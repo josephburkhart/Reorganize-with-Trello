@@ -16,17 +16,15 @@ def find_board(board_name, api_key, oath_token):
     url = "https://api.trello.com/1/members/me/boards/"
     querystring = {"key": api_key, "token": oath_token}
     response = requests.request("GET", url, params=querystring) #returns a JSON object with info on all the boards for the given Trello account
-    
-    board_info = next(board for board in response.json() if board["name"] == board_name)   #search the response for the correct board and get its info as a dictionary object
-    
+
     #parse the response to see if the request was successful
     try: 
+        board_info = next(board for board in response.json() if board["name"] == board_name)   #search the response for the correct board and get its info as a dictionary object
         board_id = board_info["id"]         #board_id = response.json()[0]["id"] works if there are no other boards
         print("Found\n")
         return board_id
-    except:
-        print("Error: board not found\n")
-        return
+    except StopIteration:
+        raise TrelloError(f'Board not found: {board_name}')
 
 def find_list(board_id, list_name, api_key, oath_token):
     """Returns the ID that corresponds to a given list name and on a board with a given id"""
@@ -37,16 +35,14 @@ def find_list(board_id, list_name, api_key, oath_token):
     querystring = {"key": api_key, "token": oath_token}
     response = requests.request("GET", url, params=querystring) #returns a JSON object with info on all the lists for the given board
 
-    list_info = next(list_ for list_ in response.json() if list_["name"] == list_name) #trailing underscore to avoid conflict with Python keyword
-    
     #parse the response to see if the request was successful
     try:
+        list_info = next(list_ for list_ in response.json() if list_["name"] == list_name) #trailing underscore to avoid conflict with Python keyword
         list_id = list_info["id"]   #this will return an error if the response contains an error
         print("Found\n")
         return list_id
-    except:
-        print("Error: list not found \n")
-        return
+    except StopIteration:
+        raise TrelloError(f'List not found: {list_name}')
     
 def find_members(members: list, api_key, oath_token):
     """Returns a list of IDs corresponding to a list of usernames"""
@@ -66,15 +62,8 @@ def find_members(members: list, api_key, oath_token):
             member_id = response.json()["id"]   #this will return an error if the response contains an error
             member_ids.append(member_id)
             print("Found")
-        except:
-            print("Error: member not found")
-    
-    #print confirmation of success or partial success to the console
-    if len(member_ids) == len(members):
-        print ("All members found\n") 
-    else:
-        print("Warning: some members not found. Continuing...\n")
-    
+        except requests.exceptions.JSONDecodeError:
+            print(f'Member not found: {member}')
     return member_ids
   
 def create_card(list_id, card_name, card_description, member_ids: list, api_key, oath_token):
@@ -92,6 +81,8 @@ def create_card(list_id, card_name, card_description, member_ids: list, api_key,
         card_id = response.json()["id"]     #this will return KeyError if the response contains an error
         print("Done\n")
         return card_id
-    except:
-        print("Error: card not created. Continuing...\n")
-        return
+    except requests.exceptions.JSONDecodeError:
+        print(f'Card could not be created: {card_name}. Continuing...\n')
+
+class TrelloError(Exception):
+    pass
