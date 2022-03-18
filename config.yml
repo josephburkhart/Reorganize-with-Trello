@@ -1,0 +1,21 @@
+# Configuration settings for main.py
+# Notes:
+    # - optional parameters: MEMBER_NAMES, BOARD_ID, LIST_ID, MEMBER_IDS
+    # - MEMBER_NAMES and MEMBER_IDS must be in a markdown-style bulleted list
+    # - if IDs are missing from this file, main.py will try to find them automatically
+
+# Path settings
+REORG_DIRECTORY: C:\full\path\to\reorganization_directory
+
+# Trello settings
+API_KEY: your_key
+OATH_TOKEN: your_token
+BOARD_NAME: your_board_name
+LIST_NAME: your_list_name
+MEMBER_NAMES:
+- username1
+- username2
+- username3
+BOARD_ID:
+LIST_ID:
+MEMBER_IDS:

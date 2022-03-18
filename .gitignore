@@ -1,0 +1,10 @@
+# Private Files #
+###################
+trello-key-and-token-pr.txt
+files.txt
+change.log
+error.log
+testdirectory1/
+testdirectory2/
+__pycache__/
+*test*

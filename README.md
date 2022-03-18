@@ -1,29 +1,36 @@
 # Reorganize with Trello
-Tools for efficiently reorganizing large directory structures using Python and Trello’s REST API. Files and directories are moved to a new, adjacent directory `/reorg_dir/cat1/cat2`, where `cat1` is the a category under the new organizational scheme and `cat2` is a subcategory of `cat1`. Files are moved unless they are flagged with an issue, in which case a Trello card is created with the path of the offending file/directory and specified members of the Trello board are tagged on the card.
+Reorganize with Trello is a small python application for efficiently reorganizing large directory structures, particularly in asynchronous team projects. After linking a Trello account, board, and list to the application's configuration file, the user can sort items (both files and directories) into primary and secondary categories (i.e., directories and subdirectories) inside a new parent directory, and flag problematic items for review. Each time an item is flagged, the application will note the issue in a log file and create a trello card that specifies the type of problem, the path of the problematic item, and an optional card message. Each time an item is moved, the application will note the move in another log file.
 
 ## Requirements
 - Python (3.7 or newer)
+- [ruamel.yaml](https://yaml.readthedocs.io/en/latest/overview.html)
+
 
 ## Setup
-1. Download `move-and-log.py`, `trello-key-and-token.txt`, `changes.log`, `errors.log`, and place them in the top-level directory of the directory structure you wish to reorganize
-2. In `move-and-log.py`, change the configuration variables as follows:
-    - set `BOARD_NAME` to the name of the board on which you want to make Trello cards
-    - set `LIST_NAME` to the name of the list in which you want to make cards
-    - set `USER_NAMES` to the usernames of the people you want to tag on the cards that are made with `move-and-log.py`
+1. Clone this repository, or simply download `move-and-log.py`, `trello.py`, `main.py`, and `config.yml` and place them together in a folder on your local machine.
+2. In `config.yml`, set the configuration variables as follows:
+   - `REORG_DIRECTORY`: full path to the new parent directory
+   - `API_KEY`: Trello API Key linked to your Trello account (this can be obtained [here](https://trello.com/app-key/))
+   - `OATH_TOKEN`: Trello authorization token linked to your Trello account (instructions can be found [here](https://developer.atlassian.com/cloud/trello/guides/rest-api/authorization/))
+   - `BOARD_NAME`: name of the board you want to create Trello cards in
+   - `LIST_NAME`: name of the list you want to create Trello cards in
+   - `MEMBER_NAMES`: usernames of the Trello board members that you want to tag on cards (make sure to replace all placeholder text before running the application)
 
 ## Usage
-1. Request a Trello API Key and Authorization Token (see instructions [here](https://developer.atlassian.com/cloud/trello/guides/rest-api/authorization/))
-2. In `trello-key-and-token.txt`, change `your_key_here` to your API key. Then change `your_token_here` to your token.
-3. Open a terminal session and navigate to the directory containing `move-and-log.py`
-4. For a given `cat1` and `cat2` (see first section above):
-      1. Navigate to a directory containing some directories or files that you wish to move to a specific category and subcategory
-      2. Enter the command `dir /s /b > files.txt` (this is the command for windows cmd, adapt to your OS as appropriate)
-      3. In `files.txt`, remove all paths corresponding to files and directories that you do not want to move
-            - Note: `files.txt` will contain the full paths for each subdirectory's contents, _and also the full path for that subdirectory_. If you only want to move some of a subdirectory's contents, then make sure to remove the full path for the subdirectory itself.
-      4. In `files.txt`, add `!u`, `!d`, or `!` to paths of files/directories that, respectively, are unclear (i.e., contents unknown or poorly documented), duplicates, or otherwise problematic
-      6. Move `files.txt` to the directory containing `move-and-log.py`
-      7. In the terminal, navigate to the directory containing `move-and-log.py` and enter the command `python move-and-log.py cat1 cat2` (but in place of `cat1` and `cat2` enter your own categories)
-5. Repeat step 4 as necessary
+1. Using the command line, navigate to a directory in your original directory structure and run the application. The application will attempt to initialize and configure itself using the settings in `config.yml`. If the initialization is successful, the application will create a user interface as shown below.
+   
+[The user interface for an example directory](images/screenshot1.png)
+
+2. In the application window, double click on a row to modify its values:
+   - `name`: name of the file or directory in the current directory. This should not need to be modified.
+   - `flag`: flag indicating whether an issue is present. `d` indicates item is a 'duplicate', `u` indicates item is 'unclear', and all other characters indicate a general 'issue'. These terms are used in the console output and the names of the trello cards.
+   - `cat1` and `cat2`: primary and secondary categories that values will be used to determine the item's final destination: : `<REORG_DIRECTORY>/cat1/cat2`
+   - `cat3`: optional third category inside `cat2`. If there is a value, it will be used to determine the item's final destination: : `<REORG_DIRECTORY>/cat1/cat2/cat3/`
+   - `issue`: optional message describing the issue in detail. This message will be added to the description of the trello card.
+
+3. Click the 'Process' button to process the table entries. Only entries with a flag or values for both `cat1` and `cat2` will be processed.
+
+4. During processing, the application will generate two log files in the same directory as `main.py`: `change.log` logs all item movements, while `error.log` logs all item issues. If these files are already present, then the application will append new entries to them, rather than overwriting them.
 
 ## Additional Resources on Automating Trello with Python
 1. https://www.timtreis.com/automatically-create-trello-cards-through-python-webscraping/
