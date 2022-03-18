@@ -2,16 +2,18 @@
 Reorganize with Trello is a small python application for efficiently reorganizing large directory structures, particularly in asynchronous team projects. After linking a Trello account, board, and list to the application's configuration file, the user can sort items (both files and directories) into primary and secondary categories (i.e., directories and subdirectories) inside a new parent directory, and flag problematic items for review. Each time an item is flagged, the application will note the issue in a log file and create a trello card that specifies the type of problem, the path of the problematic item, and an optional card message. Each time an item is moved, the application will note the move in another log file.
 
 ## Requirements
-- Python (3.7 or newer)
+- Python 3.7 or newer (recommended install with anaconda, see [here](https://docs.anaconda.com/anaconda/install/) for instructions)
+- Tkinter (usually bundled with your python distribution)
 - [ruamel.yaml](https://yaml.readthedocs.io/en/latest/overview.html)
 
 
 ## Setup
-1. Clone this repository, or simply download `move-and-log.py`, `trello.py`, `main.py`, and `config.yml` and place them together in a folder on your local machine.
-2. In `config.yml`, set the configuration variables as follows:
+1. Clone this repository, or simply download `move-and-log.py`, `trello.py`, `main.py`, and `config.yml` and place them together in the same directory on your local machine.
+2. Install the required packages (see above)
+3. In `config.yml`, set the configuration variables as follows:
    - `REORG_DIRECTORY`: full path to the new parent directory
    - `API_KEY`: Trello API Key linked to your Trello account (this can be obtained [here](https://trello.com/app-key/))
-   - `OATH_TOKEN`: Trello authorization token linked to your Trello account (instructions can be found [here](https://developer.atlassian.com/cloud/trello/guides/rest-api/authorization/))
+   - `OATH_TOKEN`: Trello authorization token linked to your Trello account (instructions for obtaining this can be found [here](https://developer.atlassian.com/cloud/trello/guides/rest-api/authorization/))
    - `BOARD_NAME`: name of the board you want to create Trello cards in
    - `LIST_NAME`: name of the list you want to create Trello cards in
    - `MEMBER_NAMES`: usernames of the Trello board members that you want to tag on cards (make sure to replace all placeholder text before running the application)
@@ -24,8 +26,8 @@ Reorganize with Trello is a small python application for efficiently reorganizin
 2. In the application window, double click on a row to modify its values:
    - `name`: name of the file or directory in the current directory. This should not need to be modified.
    - `flag`: flag indicating whether an issue is present. `d` indicates item is a 'duplicate', `u` indicates item is 'unclear', and all other characters indicate a general 'issue'. These terms are used in the console output and the names of the trello cards.
-   - `cat1` and `cat2`: primary and secondary categories that values will be used to determine the item's final destination: : `<REORG_DIRECTORY>/cat1/cat2`
-   - `cat3`: optional third category inside `cat2`. If there is a value, it will be used to determine the item's final destination: : `<REORG_DIRECTORY>/cat1/cat2/cat3/`
+   - `cat1` and `cat2`: primary and secondary categories that values will be used to determine the item's final destination: `<REORG_DIRECTORY>/cat1/cat2`
+   - `cat3`: optional third category inside `cat2`. If there is a value, it will be used to determine the item's final destination: `<REORG_DIRECTORY>/cat1/cat2/cat3/`
    - `issue`: optional message describing the issue in detail. This message will be added to the description of the trello card.
 
 3. Click the 'Process' button to process the table entries. Only entries with a flag or values for both `cat1` and `cat2` will be processed.
