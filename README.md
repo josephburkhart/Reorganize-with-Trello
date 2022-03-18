@@ -8,7 +8,7 @@ Reorganize with Trello is a small python application for efficiently reorganizin
 
 
 ## Setup
-1. Clone this repository, or simply download `move-and-log.py`, `trello.py`, `main.py`, and `config.yml` and place them together in a folder on your local machine.
+1. Clone this repository, or simply download `move-and-log.py`, `trello.py`, `main.py`, and `config.yml` and place them together in the same directory on your local machine.
 2. Install the required packages (see above)
     - Note: if you need to install python, it is recommended that you install using anaconda - see [here](https://docs.anaconda.com/anaconda/install/) for instructions
 3. In `config.yml`, set the configuration variables as follows:
