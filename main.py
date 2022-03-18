@@ -395,7 +395,7 @@ if __name__ == "__main__":
                     change_log_path=Path(__file__).parent / 'change.log',
                     column_names=['name', 'flag', 'cat1', 'cat2', 'cat3', 'issue_message'],
                     column_widths=[250, 35, 80, 80, 80, 250],
-                    heading_names=['name', 'flag', 'cat1', 'cat2', 'cat3 (opt.)', 'issue message'])
+                    heading_names=['name', 'flag', 'cat1', 'cat2', 'cat3 (opt.)', 'issue message (opt.)'])
 
     # Run application
     root.mainloop()
