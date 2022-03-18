@@ -2,7 +2,7 @@
 Reorganize with Trello is a small python application for efficiently reorganizing large directory structures, particularly in asynchronous team projects. After linking a Trello account, board, and list to the application's configuration file, the user can sort items (both files and directories) into primary and secondary categories (i.e., directories and subdirectories) inside a new parent directory, and flag problematic items for review. Each time an item is flagged, the application will note the issue in a log file and create a trello card that specifies the type of problem, the path of the problematic item, and an optional card message. Each time an item is moved, the application will note the move in another log file.
 
 ## Requirements
-- Python 3.7 or newer
+- Python 3.7 or newer (recommended install with anaconda, see [here](https://docs.anaconda.com/anaconda/install/) for instructions)
 - Tkinter (usually bundled with your python distribution)
 - [ruamel.yaml](https://yaml.readthedocs.io/en/latest/overview.html)
 
@@ -10,7 +10,6 @@ Reorganize with Trello is a small python application for efficiently reorganizin
 ## Setup
 1. Clone this repository, or simply download `move-and-log.py`, `trello.py`, `main.py`, and `config.yml` and place them together in the same directory on your local machine.
 2. Install the required packages (see above)
-    - Note: if you need to install python, it is recommended that you install using anaconda - see [here](https://docs.anaconda.com/anaconda/install/) for instructions
 3. In `config.yml`, set the configuration variables as follows:
    - `REORG_DIRECTORY`: full path to the new parent directory
    - `API_KEY`: Trello API Key linked to your Trello account (this can be obtained [here](https://trello.com/app-key/))
