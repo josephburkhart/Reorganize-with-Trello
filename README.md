@@ -19,7 +19,7 @@ Reorganize with Trello is a small python application for efficiently reorganizin
 ## Usage
 1. Using the command line, navigate to a directory in your original directory structure and run the application. The application will attempt to initialize and configure itself using the settings in `config.yml`. If the initialization is successful, the application will create a user interface as shown below.
    
-[The user interface for an example directory](images/screenshot1.png)
+<img src="https://github.com/josephburkhart/Reorganize-with-Trello/blob/8fe170749ee830f6f0c575d41d456c92e74bfbc7/images/Screenshot1.png" width="400">
 
 2. In the application window, double click on a row to modify its values:
    - `name`: name of the file or directory in the current directory. This should not need to be modified.
