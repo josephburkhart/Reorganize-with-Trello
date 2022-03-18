@@ -13,7 +13,7 @@ Reorganize with Trello is a small python application for efficiently reorganizin
 3. In `config.yml`, set the configuration variables as follows:
    - `REORG_DIRECTORY`: full path to the new parent directory
    - `API_KEY`: Trello API Key linked to your Trello account (this can be obtained [here](https://trello.com/app-key/))
-   - `OATH_TOKEN`: Trello authorization token linked to your Trello account (instructions can be found [here](https://developer.atlassian.com/cloud/trello/guides/rest-api/authorization/))
+   - `OATH_TOKEN`: Trello authorization token linked to your Trello account (instructions for obtaining this can be found [here](https://developer.atlassian.com/cloud/trello/guides/rest-api/authorization/))
    - `BOARD_NAME`: name of the board you want to create Trello cards in
    - `LIST_NAME`: name of the list you want to create Trello cards in
    - `MEMBER_NAMES`: usernames of the Trello board members that you want to tag on cards (make sure to replace all placeholder text before running the application)
