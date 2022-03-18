@@ -313,6 +313,7 @@ class MainApplication:
         # Exit window if all rows were processed
         # Note: could also use len(row_ids) == len(row_ids_for_processing)
         if self.table.tree.get_children() == ():
+            print('All entries have been processed')
             self.exit_app()
 
     def load_config(self, config_path):
