@@ -54,7 +54,6 @@ def move(source: Path, destination: Path, shorten_index: int, sep: str):
         name = f"{s}{source.name}{s}"
     else:
         name = f"{source.name}"
-    print(f"Attempting to move {source.name}...")
 
     # Create shortened paths
     try:

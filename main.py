@@ -144,6 +144,9 @@ class EntryPopup(tk.Entry):
 
 class MainApplication:
     def __init__(self, parent, config_path, error_log_path, change_log_path, column_names, column_widths, heading_names):
+        print('Initializing main application...')
+        
+        # Initialize key attributes
         self.parent = parent
         self.config_path = config_path
         self.error_log_path = error_log_path
@@ -206,11 +209,15 @@ class MainApplication:
         self.exit_button = tk.Button(self.buttonframe, text="Exit", command=self.exit_app)
         self.exit_button.grid(row=0, column=1)
 
+        print('Initialization complete\n')
     def exit_app(self):
         """Close the main window"""
+        print('Shutting down')
         self.parent.destroy()
 
     def process_entries(self):
+        print("Processing table entries...\n")
+
         # Close all EntryPopups that are still open
         popups = [widget for widget in self.table.tree.winfo_children() if widget.winfo_class()=='Entry']
         for p in popups:
@@ -246,6 +253,9 @@ class MainApplication:
                 destination = Path(self.config['REORG_DIRECTORY']) / e.cat1 / e.cat2 / e.cat3 / source.name
             else:
                 destination = Path(self.config['REORG_DIRECTORY']) / e.cat1 / e.cat2 / source.name
+
+            # Print status to console
+            print(f"Attempting to move {source.name}...")
 
             # If there is no  flag, attempt the move and skip it if there's a MoveError
             if e.flag == '':
@@ -308,6 +318,7 @@ class MainApplication:
     def load_config(self, config_path):
         """Loads settings from a YAML configuration file, checks to make sure 
         all IDs are present, and then returns the settings as a dictionary"""
+        print(f"Loading configuration settings from {config_path}")
         with open(config_path) as config_file:
             yaml = ruamel.yaml.YAML()
             config = yaml.load(config_file)
@@ -359,6 +370,7 @@ class MainApplication:
                 yaml = ruamel.yaml.YAML()
                 config = yaml.load(config_file)
 
+        print('Configuration loaded successfully')
         return config
 
 class ConfigError(Exception):
