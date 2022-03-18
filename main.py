@@ -373,7 +373,7 @@ class MainApplication:
 
         print('Configuration loaded successfully!')
         print(f'Current directory: {Path.cwd()}{os.sep}')
-        print(f"Reorganization directory: {config['REORG_DIRECTORY']}")
+        print(f"Reorganization directory: {config['REORG_DIRECTORY']}{os.sep}")
         return config
 
 class ConfigError(Exception):
