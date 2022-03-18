@@ -1,20 +1,10 @@
-# This script reads the contents of a text file and brings up a dialog box
-# that displays all of the contents and allows the user to change them
+# This script generates a list of all the items in the current directory,
+# creates a UI in which the user can flag items or sort them into categories,
+# and then processes the items according to the user's input
 # Ref: https://pythonguides.com/python-tkinter-table-tutorial/
 # Ref: https://stackoverflow.com/questions/18562123/how-to-make-ttk-treeviews-rows-editable
 # Ref: https://stackoverflow.com/questions/34699583/how-to-get-all-objects-in-a-window-with-their-settings
 # Ref: https://stackoverflow.com/questions/60954478/tkinter-treeview-doesnt-resize-with-window
-
-# To Do:
-#   modify code to accommodate cat3
-#   consider where to put configuration code - before button click or after?
-#   have a function quickly check to see if all entries actually exist when button is clicked
-#   remove unnecessary imports in main and modules
-#   optional: add frame to GUI showing the trello parameters in config
-#   optional: add a frame to GUI showing current working directory and base reorg
-#   optional: reformat docstrings according to PEP8
-#   optional: refactor code so that if users input different column_names the namedtuple referencing does not break
-
 # Note: add , highlightbackground='red', highlightthickness=1 to widget options to see borders
 
 from pathlib import Path

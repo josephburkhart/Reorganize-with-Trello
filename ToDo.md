@@ -1,7 +1,17 @@
 # Tasks
 - [x] move functions in `move-and-log.py` to a separate file `trello.py`
-- [ ] add configuration parameters to a separate file `config.py`
+- [x] add configuration parameters to a separate file `config.py`
 - [x] generalize the directory structure used by the script (e.g., see line 162 in `move-and-log.py`: `destination = base_dir / '2015_reorg' / data_stream / data_type / name`
-- [ ] generalize the organizational categories `data_stream` and `data_type` to `cat1` and `cat2`
+- [x] generalize the organizational categories `data_stream` and `data_type` to `cat1` and `cat2`
 - [x] run through instructions to make sure everything works on a fresh setup
-- [ ] change main script to resolve all files and subdirectories in a directory before attempting to move that directory
+- [x] change main script to resolve all files and subdirectories in a directory before attempting to move that directory
+- [ ] add frame to GUI showing the trello parameters in `config.yml`
+- [ ] fix error when clicking on column headings in UI
+- [ ] fix odd widget positioning
+- [ ] allow user to define a dictionary of flags inside `config.yml`
+- [ ] allow user to tab through cells in a row
+- [ ] add a checkbox to the UI that allows the user to turn off the trello functionality
+- [ ] allow user to choose a new current directory in the UI, rather than have to re-run the application from the command line
+- [ ] add some additional logic to load_config to account for the case where the user provides a valid trello member id, but not a valid trello member name
+- [ ] allow `cat2` to be optional
+- [ ] add a widget that displays console output inside the UI
