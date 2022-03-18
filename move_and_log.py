@@ -28,21 +28,22 @@ def shorten_path(full_path: Path, shorten_index: int):    #ref: https://stackove
     return Path(*path_parts[base_index:])    # * expands the tuple into a flat comma separated params
 
 def path_from_common_parent(mainpath: Path, comparepath: Path, parent_index: int):
-    """Takes two paths, makes an ordered list of their common parents, 
-    selects the common parent specified by parent_index, and returns
+    """Takes a main and a comparison path, makes an ordered list of their common 
+    parents, selects the common parent specified by parent_index, and returns
     a new path from the selected parent to the end of the main path.
-    If parent_index is out of range, it is automatically set to 0."""
-    mainpath_parts = mainpath.parts
-    comparepath_parts = comparepath.parts
-    parts_in_common = [part for part in mainpath_parts if part in comparepath_parts]
     
-    try:
-        base_part = parts_in_common[parent_index]
-    except IndexError:
-        base_part = parts_in_common[0]
+    Note: raises ValueError if parent_index is out of range"""
+    parts_in_common = []
+    for part in mainpath.parts:
+        if part in comparepath.parts:
+            if mainpath.parts.index(part) == comparepath.parts.index(part):
+                parts_in_common.append(part)
+        else:
+            break
     
-    base_index = mainpath_parts.index(base_part)
-    return Path(*mainpath_parts[base_index:])
+    base_part = parts_in_common[parent_index]
+    base_index = mainpath.parts.index(base_part)
+    return Path(*mainpath.parts[base_index:])
 
 def move(source: Path, destination: Path, shorten_index: int, sep: str):
     """Moves specified item at source path to destination path,
@@ -56,22 +57,26 @@ def move(source: Path, destination: Path, shorten_index: int, sep: str):
     print(f"Attempting to move {source.name}...")
 
     # Create shortened paths
-    short_source_parent_path = path_from_common_parent(source.parent, destination, shorten_index)
-    short_dest_parent_path = path_from_common_parent(destination.parent, source, shorten_index)
+    try:
+        source_parent_for_print = f"{s}{path_from_common_parent(source.parent, destination, shorten_index)}{s}"
+        dest_parent_for_print = f"{s}{path_from_common_parent(destination.parent, source, shorten_index)}{s}"
+    except IndexError:
+        source_parent_for_print = f"{source.parent}{s}"
+        dest_parent_for_print = f"{destination.parent}{s}"
 
     # Check if the named file/directory exists
     if not source.exists():
-        print(f"Warning: {name} does not exist in .{s}{short_source_parent_path}{s}")
+        print(f"Warning: {name} does not exist in {source_parent_for_print}")
         raise MoveError('Source does not exist')
     
     # Check if there is a duplicate file/directory at the destination
     if destination.exists():
-        print(f"Warning: {name} already exists in .{s}{short_dest_parent_path}{s}")
+        print(f"Warning: {name} already exists in {dest_parent_for_print}")
         raise MoveError('Source duplicated at destination')
     
     # Create destination folder if necessary    TODO: modify print statement to include base reorg directory
     if not destination.parent.exists():
-        print(f"Warning: destination does not exist: .{s}{short_dest_parent_path}{s}\nCreating destination... ", end="")
+        print(f"Warning: destination does not exist: {dest_parent_for_print}\nCreating destination... ", end="")
         destination.parent.mkdir(parents=True, exist_ok=False) #all intermediate folders are also created
         print("Done")
     
@@ -85,8 +90,7 @@ def move(source: Path, destination: Path, shorten_index: int, sep: str):
     else:
         shutil.move(source, destination)
 
-    print(f"{name} has been moved to .{s}{short_dest_parent_path}{s}\n")
-    return 0
+    print(f"{name} has been moved to {dest_parent_for_print}\n")
 
 def move_message(source: Path, destination: Path, sep: str):
     """Compose a message describing the movement
@@ -131,8 +135,11 @@ def error_message(table_entry, source: Path, short_paths: bool, sep: str, **kwar
     
     # Compose error message
     if short_paths:
-            short_source_parent_path = path_from_common_parent(source.parent, comparepath, shorten_index)
-            error_msg = f"{issue_type}: {name} in .{s}{short_source_parent_path}{s}\n"
+        try:
+            source_parent_for_print = f"{s}{path_from_common_parent(source.parent, comparepath, shorten_index)}{s}"
+        except IndexError:
+            source_parent_for_print = f"{source.parent}{s}"
+        error_msg = f"{issue_type}: {name} in {source_parent_for_print}\n"
     else:
         error_msg = f"{issue_type}: {name} in {source.parent}{s}\n"
     return error_msg
