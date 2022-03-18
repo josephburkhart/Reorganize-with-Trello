@@ -290,7 +290,7 @@ class MainApplication:
                                                  sep=os.sep)
                 move_and_log.log_message(log_file_path=self.error_log_path, 
                                          time=current_time, 
-                                         message=msg)
+                                         message=msg+'\n')
 
                 # Make an issue card
                 card_name = move_and_log.error_message(table_entry=e,

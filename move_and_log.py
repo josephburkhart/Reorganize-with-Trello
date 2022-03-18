@@ -138,9 +138,9 @@ def error_message(table_entry, source: Path, short_paths: bool, sep: str, **kwar
             source_parent_for_print = f"{s}{path_from_common_parent(source.parent, comparepath, shorten_index)}{s}"
         except IndexError:
             source_parent_for_print = f"{source.parent}{s}"
-        error_msg = f"{issue_type}: {name} in {source_parent_for_print}\n"
+        error_msg = f"{issue_type}: {name} in {source_parent_for_print}"
     else:
-        error_msg = f"{issue_type}: {name} in {source.parent}{s}\n"
+        error_msg = f"{issue_type}: {name} in {source.parent}{s}"
     return error_msg
 
 def log_message(log_file_path: Path, time, message):
