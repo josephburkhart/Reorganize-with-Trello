@@ -370,7 +370,9 @@ class MainApplication:
                 yaml = ruamel.yaml.YAML()
                 config = yaml.load(config_file)
 
-        print('Configuration loaded successfully')
+        print('Configuration loaded successfully!')
+        print(f'Current directory: {Path.cwd()}{os.sep}')
+        print(f"Reorganization directory: {config['REORG_DIRECTORY']}")
         return config
 
 class ConfigError(Exception):
