@@ -15,3 +15,4 @@
 - [ ] add some additional logic to load_config to account for the case where the user provides a valid trello member id, but not a valid trello member name
 - [ ] allow `cat2` to be optional
 - [ ] add a widget that displays console output inside the UI
+- [ ] change config file format from YAML to INI so that no packages have to be installed
