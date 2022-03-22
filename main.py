@@ -41,15 +41,11 @@ class Table:
         # Create columns and headings
         self.tree['columns']= tuple(self.column_names[1:])  #used for indexing, first name omitted because it is always set to #0
 
-        self.tree.column("#0", width=self.column_widths[0], stretch='yes')    #first column and heading must be separately defined
-        self.tree.heading("#0", text=self.heading_names[0], anchor='center')   #this column is special because it can be used to display a tree with nested elements
-
-        self.tree.column(self.column_names[1], width=self.column_widths[1], anchor='center', stretch='yes')  #define flag column separately with center anchor
-        self.tree.heading(self.column_names[1], text=self.heading_names[1],anchor='center')
-
-        for i in range(2,len(self.column_names)):
+        for i in range(len(self.column_names)):
             self.tree.column(self.column_names[i], width=self.column_widths[i], anchor='w', stretch='no')
             self.tree.heading(self.column_names[i], text=self.heading_names[i],anchor='center')
+
+        self.tree.column(self.column_names[1], anchor='center') #center the text in the flag column
 
         # Add Data
         self.default_values = tuple('' for name in range(1,len(column_names)))
