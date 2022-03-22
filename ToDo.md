@@ -9,7 +9,7 @@
 - [ ] fix error when clicking on column headings in UI
 - [ ] fix odd widget positioning
 - [ ] allow user to define a dictionary of flags inside `config.yml`
-- [ ] allow user to tab through cells in a row
+- [x] allow user to tab through cells in a row
 - [ ] add a checkbox to the UI that allows the user to turn off the trello functionality
 - [ ] allow user to choose a new current directory in the UI, rather than have to re-run the application from the command line
 - [ ] add some additional logic to load_config to account for the case where the user provides a valid trello member id, but not a valid trello member name
