@@ -34,6 +34,7 @@ class Table:
         # Initialize instance attributes
         self.row_names = row_names
         self.column_names = column_names
+        self.column_ids = ['#'+str(i) for i in range(len(column_names))]
         self.column_widths = column_widths
         self.heading_names = heading_names
 
@@ -54,7 +55,7 @@ class Table:
         self.default_values = tuple('' for name in range(1,len(column_names)))
         for name in self.row_names:
             self.tree.insert(parent='',index='end',text=name,values=self.default_values,tags=('clickable'))
-                                                                                                        #TODO: add a scrollbar
+
         # Add event handler to enable cell editing
         self.tree.bind("<Double-1>", self.make_popup)
         self.tree.bind("<Delete>", self.delete_rows)
@@ -67,8 +68,10 @@ class Table:
         # What row and column was clicked on
         row_id = self.tree.identify_row(event.y)
         col_id = self.tree.identify_column(event.x)
-        col_num = int(col_id[1:])     #remove # and convert to int, to use for indexing 'values' below
-
+        col_index = int(col_id[1:])     #remove # and convert to int, to use for indexing 'values' below
+        # print(col_id)
+        # print(self.tree.column('flag'))
+        
         # Get column position info
         x,y,width,height = self.tree.bbox(row_id, col_id)
 
@@ -76,13 +79,13 @@ class Table:
         pady = height // 2
 
         # Get text from current cell
-        if col_id =='#0':
+        if col_index == 0:
             text = self.tree.item(row_id, 'text')
         else:
-            text = self.tree.item(row_id, 'values')[col_num-1]
+            text = self.tree.item(row_id, 'values')[col_index-1]
         
         # Create entry popup
-        self.entryPopup = EntryPopup(self.tree, self, row_id, col_num, text, name=('ep_'+row_id+'_'+col_id))
+        self.entryPopup = EntryPopup(self.tree, self, row_id, col_index, text, name=('ep_'+row_id+'_'+col_id))
 
         # Place Entry popup properly
         self.entryPopup.place( x=x, y=y+pady, width=width, height=height, anchor='w') #TODO: use relwidth param to make entrypopup size change dynamically with columns
@@ -98,32 +101,38 @@ class Table:
             self.tree.delete(item)
 
 class EntryPopup(tk.Entry):
-    def __init__(self, parent, grandparent, row_id, col_num, text, **kw):
+    def __init__(self, parent, grandparent, row_id, col_index, text, **kw):
         """ If relwidth is set, then width is ignored """
+        # Initialize instance attributes
         super().__init__(parent, **kw)
         self.parent = parent
         self.grandparent = grandparent
         self.row_id = row_id
-        self.col_num = col_num
+        self.col_index = col_index
 
-        self.insert(0, text) 
+        # Add text from parent
+        self.insert(0, text)
+
+        # Adjust final settings
         self['exportselection'] = False
-
         self.focus_force()
+
+        # Event Handlers
         self.bind("<Escape>", lambda *ignore: self.destroy())       #destroy() accepts no arguments so anonymous function is necessary
         self.bind("<Return>", lambda *ignore: self.insert_text_and_destroy())         #* means this will work for any number of potential arguments
         self.bind("<FocusOut>", lambda *ignore: self.insert_text_and_destroy())
         self.bind("<Control-a>", self.select_all)
-        self.bind("<Tab>", self.next_entry)
+        self.bind("<Tab>", lambda event, inc=1: self.next_entry(event, inc))
+        self.bind("<Shift-Tab>", lambda event, inc=-1: self.next_entry(event, inc))
 
     def insert_text_and_destroy(self, *ignore):
         """ Add the text in EntryPopup to the corresponding cell in parent"""
-        if self.col_num == 0:                        #value for col 0 is in 'text'
+        if self.col_index == 0:                        #value for col 0 is in 'text'
             self.parent.item(self.row_id, text=self.get())
         else:                                   #Note: there has to be a more elegant way of modifying current row's values than calling item() twice
             current_item = self.parent.item(self.row_id)
             values = current_item['values']
-            values[self.col_num-1] = self.get()
+            values[self.col_index-1] = self.get()
             self.parent.item(self.row_id, values=values)
         self.destroy()
 
@@ -134,15 +143,26 @@ class EntryPopup(tk.Entry):
         # Return 'break' to interrupt default key-bindings
         return 'break'
     
-    def next_entry(self, event):
-        """ Allow the user to move from one EntryPopup to the next one in a row"""
+    def next_entry(self, event, inc: int):
+        """ Allow the user to move from one EntryPopup to the next across rows and columns.
+        `inc` is the increment (+/- int) by which the column and row position is changed."""
         # Calculate IDs
-        row_id = self.row_id
-        if self.col_num == len(self.grandparent.column_names)-1:
-            col_num = 0
+        row_ids = self.parent.get_children()
+        row_index = row_ids.index(self.row_id)
+        col_ids = self.grandparent.column_ids
+        col_index = self.col_index
+
+        if ((col_index+inc) > len(col_ids)-1) or ((col_index+inc) < 0):
+            col_index = (col_index+inc) % len(col_ids)
+            if ((row_index+inc) > len(row_ids)-1) or ((row_index+inc) < 0):
+                row_index = (row_index+inc) % len(row_ids)
+            else:
+                row_index += inc
         else:
-            col_num = self.col_num + 1
-        col_id = '#'+str(col_num)
+            col_index += inc
+
+        row_id = row_ids[row_index]
+        col_id = col_ids[col_index]
 
         # Get column position info
         x,y,width,height = self.parent.bbox(row_id, col_id)
@@ -154,10 +174,10 @@ class EntryPopup(tk.Entry):
         if col_id =='#0':
             text = self.parent.item(row_id, 'text')
         else:
-            text = self.parent.item(row_id, 'values')[col_num-1]
+            text = self.parent.item(row_id, 'values')[col_index-1]
         
         # Create new entry popup
-        newpopup = EntryPopup(self.parent, self.grandparent, row_id, col_num, text, name=('ep_'+row_id+'_'+col_id))
+        newpopup = EntryPopup(self.parent, self.grandparent, row_id, col_index, text, name=('ep_'+row_id+'_'+col_id))
 
         # Place new popup properly
         newpopup.place( x=x, y=y+pady, width=width, height=height, anchor='w') #TODO: use relwidth param to make entrypopup size change dynamically with columns
@@ -236,6 +256,7 @@ class MainApplication:
         self.exit_button.grid(row=0, column=1)
 
         print('Initialization complete\n')
+
     def exit_app(self):
         """Close the main window"""
         print('Shutting down')
@@ -420,7 +441,7 @@ if __name__ == "__main__":
                     config_path=Path(__file__).parent / 'testconfig.yml',
                     error_log_path=Path(__file__).parent / 'error.log',
                     change_log_path=Path(__file__).parent / 'change.log',
-                    column_names=['name', 'flag', 'cat1', 'cat2', 'cat3', 'issue_message'],
+                    column_names=['#0', 'flag', 'cat1', 'cat2', 'cat3', 'issue_message'],
                     column_widths=[250, 35, 80, 80, 80, 250],
                     heading_names=['name', 'flag', 'cat1', 'cat2', 'cat3 (opt.)', 'issue message (opt.)'])
 
