@@ -267,7 +267,8 @@ class MainApplication:
             p.insert_text_and_destroy()
         
         # Compose data structure            TODO: make this more elegant
-        TableEntry = namedtuple("TableEntry", ' '.join(self.column_names))
+        data_field_names = self.heading_names[:1] + self.column_names[1:]
+        TableEntry = namedtuple("TableEntry", ' '.join(data_field_names))
         row_ids = self.table.tree.get_children()
         row_ids_for_processing = [
             id 
