@@ -17,3 +17,5 @@
 - [ ] add a widget that displays console output inside the UI
 - [ ] change config file format from YAML to INI so that no packages have to be installed
 - [ ] add a 'Fill Down' method to EntryPopup
+- [ ] add autocomplete to EntryPopup
+- [ ] add ability to incorporate multiple entries into a single issue card
