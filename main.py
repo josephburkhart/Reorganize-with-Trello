@@ -340,7 +340,7 @@ class MainApplication:
                 # Make an issue card
                 card_name = move_and_log.error_message(table_entry=e,
                                                  source=source,
-                                                 short_paths=True,
+                                                 short_paths=False,
                                                  sep=os.sep,
                                                  reorgpath=Path(self.config['REORG_DIRECTORY']),
                                                  shorten_index=-1)
