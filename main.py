@@ -274,9 +274,8 @@ class MainApplication:
             id 
             for id 
             in row_ids 
-            if (self.table.tree.item(id)['values'][0] != '' or    #flag exists
-                (self.table.tree.item(id)['values'][1] != '' and  #cat1 and cat2 exist
-                self.table.tree.item(id)['values'][2] != ''))
+            if (self.table.tree.item(id)['values'][0] != '' or      #flag exists
+                self.table.tree.item(id)['values'][1] != '')        #cat1 exists
         ]
         table_entries = []
         for id in row_ids_for_processing:
@@ -295,8 +294,10 @@ class MainApplication:
             source = Path.cwd() / e.name
             if e.cat3 != '':
                 destination = Path(self.config['REORG_DIRECTORY']) / e.cat1 / e.cat2 / e.cat3 / source.name
-            else:
+            elif e.cat2 !='':
                 destination = Path(self.config['REORG_DIRECTORY']) / e.cat1 / e.cat2 / source.name
+            else:
+                destination = Path(self.config['REORG_DIRECTORY']) / e.cat1 / source.name
 
             # Print status to console
             print(f"Attempting to move {source.name}...")
@@ -440,7 +441,7 @@ if __name__ == "__main__":
                     change_log_path=Path(__file__).parent / 'change.log',
                     column_names=['#0', 'flag', 'cat1', 'cat2', 'cat3', 'issue_message'],
                     column_widths=[250, 35, 80, 80, 80, 250],
-                    heading_names=['name', 'flag', 'cat1', 'cat2', 'cat3 (opt.)', 'issue message (opt.)'])
+                    heading_names=['name', 'flag', 'cat1', 'cat2 (opt.)', 'cat3 (opt.)', 'issue message (opt.)'])
 
     # Run application
     root.mainloop()
