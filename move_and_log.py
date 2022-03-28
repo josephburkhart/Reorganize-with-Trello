@@ -114,7 +114,7 @@ def error_message(table_entry, source: Path, short_paths: bool, sep: str, **kwar
     s = sep
 
     # Determine the type of issue
-    issues = {'d': 'Duplicate', 'm': 'Misplaced', 'u': 'Unclear'}
+    issues = {'d': 'Duplicate', 'm': 'Misplaced', 'u': 'Unclear', 'n': 'Unnecessary'}
     issue_type = issues.get(table_entry.flag, 'Issue') #returns 'Issue' if flag is not 'd' or 'u'
     
     # Add leading and trailing backslashes to directory names
