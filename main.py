@@ -14,7 +14,7 @@ import trello
 import move_and_log
 from collections import namedtuple
 import time
-import ruamel.yaml
+import configparser
 import os
 
 def list_names(current_dir: Path):
@@ -185,12 +185,12 @@ class EntryPopup(tk.Entry):
 
 
 class MainApplication:
-    def __init__(self, parent, config_path, error_log_path, change_log_path, column_names, column_widths, heading_names):
+    def __init__(self, parent, config_file_path, error_log_path, change_log_path, column_names, column_widths, heading_names):
         print('Initializing main application...')
         
         # Initialize key attributes
         self.parent = parent
-        self.config_path = config_path
+        self.config_file_path = config_file_path
         self.error_log_path = error_log_path
         self.change_log_path = change_log_path
         
@@ -200,7 +200,7 @@ class MainApplication:
             self.exit_app()
 
         # Import config
-        self.config = self.load_config(self.config_path)
+        self.settings = self.load_settings(self.config_file_path)
         
         # Initialize Data
         self.row_names = list_names(current_dir=Path.cwd())
@@ -232,7 +232,7 @@ class MainApplication:
 
         self.rdlabel = tk.Label(self.infoframe, text='Reorg Directory:\t', font='Calibri 10 bold')
         self.rdlabel.grid(row=2, column=0, sticky='n')
-        self.rdmessage = tk.Message(self.infoframe, text=self.config['REORG_DIRECTORY'], width=750, justify='left')
+        self.rdmessage = tk.Message(self.infoframe, text=self.settings['REORG_DIRECTORY'], width=750, justify='left')
         self.rdmessage.grid(row=2, column=1, sticky='w')
         
         instructions=('For each item, enter category names to move it to <base>\\<reorg>\\<cat1>\\<cat2>\\<cat3>\n\n' +
@@ -293,11 +293,11 @@ class MainApplication:
             #paths for movement
             source = Path.cwd() / e.name
             if e.cat3 != '':
-                destination = Path(self.config['REORG_DIRECTORY']) / e.cat1 / e.cat2 / e.cat3 / source.name
+                destination = Path(self.settings['REORG_DIRECTORY']) / e.cat1 / e.cat2 / e.cat3 / source.name
             elif e.cat2 !='':
-                destination = Path(self.config['REORG_DIRECTORY']) / e.cat1 / e.cat2 / source.name
+                destination = Path(self.settings['REORG_DIRECTORY']) / e.cat1 / e.cat2 / source.name
             else:
-                destination = Path(self.config['REORG_DIRECTORY']) / e.cat1 / source.name
+                destination = Path(self.settings['REORG_DIRECTORY']) / e.cat1 / source.name
 
             # Print status to console
             print(f"Attempting to move {source.name}...")
@@ -342,14 +342,14 @@ class MainApplication:
                                                  source=source,
                                                  short_paths=False,
                                                  sep=os.sep,
-                                                 reorgpath=Path(self.config['REORG_DIRECTORY']),
+                                                 reorgpath=Path(self.settings['REORG_DIRECTORY']),
                                                  shorten_index=-1)
-                trello.create_card(list_id=self.config['LIST_ID'], 
+                trello.create_card(list_id=self.settings['LIST_ID'], 
                                    card_name=card_name, 
                                    card_description=e.issue_message,
-                                   member_ids=self.config['MEMBER_IDS'], 
-                                   api_key=self.config['API_KEY'], 
-                                   oath_token=self.config['OATH_TOKEN'])
+                                   member_ids=self.settings['MEMBER_IDS'], 
+                                   api_key=self.settings['API_KEY'], 
+                                   oath_token=self.settings['OATH_TOKEN'])
 
         # Remove the rows that were processed from the table
         for id in row_ids_for_processing:
@@ -361,65 +361,73 @@ class MainApplication:
             print('All entries have been processed')
             self.exit_app()
 
-    def load_config(self, config_path):
-        """Loads settings from a YAML configuration file, checks to make sure 
-        all IDs are present, and then returns the settings as a dictionary"""
-        print(f"Loading configuration settings from {config_path}")
-        with open(config_path) as config_file:
-            yaml = ruamel.yaml.YAML()
-            config = yaml.load(config_file)
+    def load_settings(self, config_file_path):
+        """Loads keys and options from an INI configuration file, checks to make
+        sure all IDs are present, and then returns the settings section of the 
+        file as a dictionary"""
+        print(f"Loading configuration settings from {config_file_path}")
+        # with open(config_file_path) as config_file:
+        #     yaml = ruamel.yaml.YAML()
+        #     config = yaml.load(config_file)
+        config = configparser.ConfigParser(comment_prefixes='/', 
+                                   allow_no_value=True,
+                                   delimiters='=')
+        config.optionxform = lambda option: option
+        config.read(config_file_path)
+
+        # Shorthand for the 'Settings' section
+        print(dict(config))
+        settings = config['Settings']
 
         # Check that trello credentials are present, and if they aren't throw an error
-        if (config['API_KEY'] == None or config['OATH_TOKEN'] == None):
-            raise ConfigError(f'trello credential(s) missing in {config_path}')
+        if (settings['API_KEY'] == '' or settings['OATH_TOKEN'] == ''):
+            raise ConfigError(f'trello credential(s) missing in {config_file_path}')
 
         # Check that required names are present, and if they aren't throw an error
-        if (config['BOARD_NAME'] == None or config['LIST_NAME'] == None):
-            raise ConfigError(f'name(s) missing in {config_path}')
+        if (settings['BOARD_NAME'] == '' or settings['LIST_NAME'] == ''):
+            raise ConfigError(f'name(s) missing in {config_file_path}')
 
         # Check that all paths are present, and if they aren't throw an error
-        if config['REORG_DIRECTORY'] == None:
-            raise ConfigError(f'path(s) missing in {config_path}')
+        if settings['REORG_DIRECTORY'] == '':
+            raise ConfigError(f'path(s) missing in {config_file_path}')
             
         # Check that all IDs are present, and if they aren't...
-        if (config['BOARD_ID'] == None or
-            config['LIST_ID'] == None or
-            (config['MEMBER_IDS'] == None and config['MEMBER_NAMES'] != None)):
+        if (settings['BOARD_ID'] == '' or
+            settings['LIST_ID'] == '' or
+            (settings['MEMBER_IDS'] == '' and settings['MEMBER_NAMES'] != '')):
             
-            # Find them...
-            print(f'Warning: ID(s) missing in {config_path}. Attempting to find IDs...\n')
+            # Find the BOARD_ID...
+            print(f'Warning: ID(s) missing in {config_file_path}. Attempting to find IDs...\n')
             try:
-                config['BOARD_ID'] = trello.find_board(config['BOARD_NAME'], config['API_KEY'], config['OATH_TOKEN'])
+                settings['BOARD_ID'] = trello.find_board(settings['BOARD_NAME'], settings['API_KEY'], settings['OATH_TOKEN'])
             except trello.TrelloError:
-                print(f"Error! Board not found: {config['BOARD_NAME']}. Exiting app...")
+                print(f"Error! Board not found: {settings['BOARD_NAME']}. Exiting app...")
                 raise SystemExit
             
+            # Find the LIST_ID
             try:
-                config['LIST_ID'] = trello.find_list(config['BOARD_ID'], config['LIST_NAME'], config['API_KEY'], config['OATH_TOKEN'])
+                settings['LIST_ID'] = trello.find_list(settings['BOARD_ID'], settings['LIST_NAME'], settings['API_KEY'], settings['OATH_TOKEN'])
             except trello.TrelloError:
-                print(f"Error! List not found: {config['LIST_NAME']}. Exiting app...")
+                print(f"Error! List not found: {settings['LIST_NAME']}. Exiting app...")
                 raise SystemExit
             
-            config['MEMBER_IDS'] = trello.find_members(config['MEMBER_NAMES'], config['API_KEY'], config['OATH_TOKEN'])
-            if len(config['MEMBER_IDS']) == len(config['MEMBER_NAMES']):
+            # FIND THE MEMBER_IDS
+            member_names = settings['MEMBER_NAMES'].split(', ')
+            member_ids = trello.find_members(member_names, settings['API_KEY'], settings['OATH_TOKEN'])
+            settings['MEMBER_IDS'] = ', '.join(member_ids)
+            if len(member_ids) == len(member_names):
                 print ("All members found\n") 
             else:
                 print("Warning! some members not found. Continuing...\n")
 
-            # Write them to the config file...
-            with open(config_path, 'w') as config_file:
-                yaml = ruamel.yaml.YAML()
-                yaml.dump(config, config_file)
-
-            # And reload the config file
-            with open(config_path) as config_file:
-                yaml = ruamel.yaml.YAML()
-                config = yaml.load(config_file)
+            # Write them to the config file
+            with open(config_file_path, 'w') as config_file:
+                config.write(config_file)
 
         print('Configuration loaded successfully!')
         print(f'Current directory: {Path.cwd()}{os.sep}')
-        print(f"Reorganization directory: {config['REORG_DIRECTORY']}{os.sep}")
-        return config
+        print(f"Reorganization directory: {settings['REORG_DIRECTORY']}{os.sep}")
+        return dict(settings)
 
 class ConfigError(Exception):
     pass
@@ -436,7 +444,7 @@ if __name__ == "__main__":
 
     # Create GUI
     MainApplication(parent=root, 
-                    config_path=Path(__file__).parent / 'testconfig.yml',
+                    config_file_path=Path(__file__).parent / 'testconfig2.ini',
                     error_log_path=Path(__file__).parent / 'error.log',
                     change_log_path=Path(__file__).parent / 'change.log',
                     column_names=['#0', 'flag', 'cat1', 'cat2', 'cat3', 'issue_message'],
