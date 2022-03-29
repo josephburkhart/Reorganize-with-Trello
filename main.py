@@ -199,8 +199,9 @@ class MainApplication:
             print("Error: column_names, column_widths, and heading_names must be lists of identical length")
             self.exit_app()
 
-        # Import config
+        # Import configuration settings and flags
         self.settings = self.load_settings(self.config_file_path)
+        self.flags = self.load_flags(self.config_file_path)
         
         # Initialize Data
         self.row_names = list_names(current_dir=Path.cwd())
@@ -330,6 +331,7 @@ class MainApplication:
                     print(f"Issue found at {source}")
 
                 msg = move_and_log.error_message(table_entry=e,
+                                                 issues=self.flags,
                                                  source=source,
                                                  short_paths=False,
                                                  sep=os.sep)
@@ -339,11 +341,12 @@ class MainApplication:
 
                 # Make an issue card
                 card_name = move_and_log.error_message(table_entry=e,
-                                                 source=source,
-                                                 short_paths=False,
-                                                 sep=os.sep,
-                                                 reorgpath=Path(self.settings['REORG_DIRECTORY']),
-                                                 shorten_index=-1)
+                                                       issues=self.flags,
+                                                       source=source,
+                                                       short_paths=False,
+                                                       sep=os.sep,
+                                                       reorgpath=Path(self.settings['REORG_DIRECTORY']),
+                                                       shorten_index=-1)
                 trello.create_card(list_id=self.settings['LIST_ID'], 
                                    card_name=card_name, 
                                    card_description=e.issue_message,
@@ -365,10 +368,7 @@ class MainApplication:
         """Loads keys and options from an INI configuration file, checks to make
         sure all IDs are present, and then returns the settings section of the 
         file as a dictionary"""
-        print(f"Loading configuration settings from {config_file_path}")
-        # with open(config_file_path) as config_file:
-        #     yaml = ruamel.yaml.YAML()
-        #     config = yaml.load(config_file)
+        print(f"Loading settings from {config_file_path}")
         config = configparser.ConfigParser(comment_prefixes='/', 
                                    allow_no_value=True,
                                    delimiters='=')
@@ -376,7 +376,6 @@ class MainApplication:
         config.read(config_file_path)
 
         # Shorthand for the 'Settings' section
-        print(dict(config))
         settings = config['Settings']
 
         # Check that trello credentials are present, and if they aren't throw an error
@@ -411,7 +410,7 @@ class MainApplication:
                 print(f"Error! List not found: {settings['LIST_NAME']}. Exiting app...")
                 raise SystemExit
             
-            # FIND THE MEMBER_IDS
+            # Find the MEMBER_IDS
             member_names = settings['MEMBER_NAMES'].split(', ')
             member_ids = trello.find_members(member_names, settings['API_KEY'], settings['OATH_TOKEN'])
             settings['MEMBER_IDS'] = ', '.join(member_ids)
@@ -424,10 +423,22 @@ class MainApplication:
             with open(config_file_path, 'w') as config_file:
                 config.write(config_file)
 
-        print('Configuration loaded successfully!')
+        print('Settings loaded successfully!')
         print(f'Current directory: {Path.cwd()}{os.sep}')
         print(f"Reorganization directory: {settings['REORG_DIRECTORY']}{os.sep}")
         return dict(settings)
+
+    def load_flags(self, config_file_path):
+        """Loads keys and options from an INI configuration file, and then 
+        returns the flags section of the file as a dictionary"""
+        print(f"Loading flags from {config_file_path}")
+        config = configparser.ConfigParser(comment_prefixes='/', 
+                                   allow_no_value=True,
+                                   delimiters='=')
+        config.optionxform = lambda option: option
+        config.read(config_file_path)
+        
+        return dict(config['Flags'])
 
 class ConfigError(Exception):
     pass
