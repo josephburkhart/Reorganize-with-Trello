@@ -455,7 +455,7 @@ if __name__ == "__main__":
 
     # Create GUI
     MainApplication(parent=root, 
-                    config_file_path=Path(__file__).parent / 'testconfig2.ini',
+                    config_file_path=Path(__file__).parent / 'config.ini',
                     error_log_path=Path(__file__).parent / 'error.log',
                     change_log_path=Path(__file__).parent / 'change.log',
                     column_names=['#0', 'flag', 'cat1', 'cat2', 'cat3', 'issue_message'],
