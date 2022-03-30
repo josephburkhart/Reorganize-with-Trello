@@ -9,9 +9,9 @@ After linking a Trello account, board, and list to the application's configurati
 - Tkinter (usually bundled with your python distribution)
 
 ## Setup
-1. Clone this repository, or simply download `move-and-log.py`, `trello.py`, `main.py`, and `config.yml` and place them together in the same directory on your local machine.
+1. Clone this repository, or simply download `move-and-log.py`, `trello.py`, `main.py`, and `config.ini` and place them together in the same directory on your local machine.
 2. Install the required packages (see above)
-3. In `config.yml`, set the configuration variables as follows:
+3. In `config.ini`, set the configuration variables as follows:
    - `REORG_DIRECTORY`: full path to the new parent directory
    - `API_KEY`: Trello API Key linked to your Trello account (this can be obtained [here](https://trello.com/app-key/))
    - `OATH_TOKEN`: Trello authorization token linked to your Trello account (instructions for obtaining this can be found [here](https://developer.atlassian.com/cloud/trello/guides/rest-api/authorization/))
@@ -20,7 +20,7 @@ After linking a Trello account, board, and list to the application's configurati
    - `MEMBER_NAMES`: usernames of the Trello board members that you want to tag on cards (make sure to replace all placeholder text before running the application)
 
 ## Usage
-1. Using the command line, navigate to a directory in your original directory structure and run the application. The application will attempt to initialize and configure itself using the settings in `config.yml`. If the initialization is successful, the application will create a user interface as shown below.
+1. Using the command line, navigate to a directory in your original directory structure and run the application. The application will attempt to initialize and configure itself using the settings in `config.ini`. If the initialization is successful, the application will create a user interface as shown below.
    
 <img src="https://github.com/josephburkhart/Reorganize-with-Trello/blob/8fe170749ee830f6f0c575d41d456c92e74bfbc7/images/Screenshot1.png" width="800">
 
