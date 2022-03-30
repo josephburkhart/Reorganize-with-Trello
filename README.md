@@ -1,11 +1,12 @@
 # Reorganize with Trello
-Reorganize with Trello is a small python application for efficiently reorganizing large directory structures, particularly in asynchronous team projects. After linking a Trello account, board, and list to the application's configuration file, the user can sort items (both files and directories) into primary and secondary categories (i.e., directories and subdirectories) inside a new parent directory, and flag problematic items for review. Each time an item is flagged, the application will note the issue in a log file and create a trello card that specifies the type of problem, the path of the problematic item, and an optional card message. Each time an item is moved, the application will note the move in another log file.
+Reorganize with Trello is a small application for efficiently reorganizing large directory structures, particularly in asynchronous team projects. It is written entirely in Python, using only modules in the standard library.
+
+After linking a Trello account, board, and list to the application's configuration file, the user can sort items (both files and directories) into primary and secondary categories (i.e., directories and subdirectories) inside a new parent directory, and flag problematic items for review. Each time an item is flagged, the application will note the issue in a log file and create a trello card that specifies the type of problem, the path of the problematic item, and an optional card message. Each time an item is moved, the application will note the move in another log file.
 
 ## Requirements
-- Python 3.7 or newer (recommended install with anaconda, see [here](https://docs.anaconda.com/anaconda/install/) for instructions)
+- Python 3.7 or newer 
+  - while it is recommended that you install Python using a package manager such as [anaconda](https://docs.anaconda.com/anaconda/install/), Reorganize with Trello does not require any packages, so a basic install will also work just fine
 - Tkinter (usually bundled with your python distribution)
-- [ruamel.yaml](https://yaml.readthedocs.io/en/latest/overview.html)
-
 
 ## Setup
 1. Clone this repository, or simply download `move-and-log.py`, `trello.py`, `main.py`, and `config.yml` and place them together in the same directory on your local machine.
