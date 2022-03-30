@@ -25,9 +25,9 @@ After linking a Trello account, board, and list to the application's configurati
 
 2. In the application window, double click on a row to modify its values:
    - `name`: name of the file or directory in the current directory. This should not need to be modified.
-   - `flag`: flag indicating whether an issue is present. `d` indicates item is a 'duplicate', `u` indicates item is 'unclear', and all other characters indicate a general 'issue'. These terms are used in the console output and the names of the trello cards.
-   - `cat1` and `cat2`: primary and secondary categories whose values will be used to determine the item's final destination: `<REORG_DIRECTORY>/cat1/cat2`
-   - `cat3`: optional third category inside `cat2`. If there is a value, it will be used to determine the item's final destination: `<REORG_DIRECTORY>/cat1/cat2/cat3/`
+   - `flag`: flag indicating the type of issue. Flags and their corresponding issue types are defined in `config.ini`.
+   - `cat1` and `cat2`: primary and secondary categories whose values will be used to determine the item's final destination: `/<REORG_DIRECTORY>/cat1/cat2/`
+   - `cat3`: optional third category inside `cat2`. If there is a value, it will be used to determine the item's final destination: `/<REORG_DIRECTORY>/cat1/cat2/cat3/`
    - `issue`: optional message describing the issue in detail. This message will be added to the description of the trello card.
 
 3. Click the 'Process' button to process the table entries. Only entries with a flag or values for both `cat1` and `cat2` will be processed.
