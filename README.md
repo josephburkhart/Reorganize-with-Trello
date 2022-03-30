@@ -10,8 +10,7 @@ After linking a Trello account, board, and list to the application's configurati
 
 ## Setup
 1. Clone this repository, or simply download `move-and-log.py`, `trello.py`, `main.py`, and `config.ini` and place them together in the same directory on your local machine.
-2. Install the required packages (see above)
-3. In `config.ini`, set the configuration variables as follows:
+2. In `config.ini`, set the configuration variables as follows:
    - `REORG_DIRECTORY`: full path to the new parent directory
    - `API_KEY`: Trello API Key linked to your Trello account (this can be obtained [here](https://trello.com/app-key/))
    - `OATH_TOKEN`: Trello authorization token linked to your Trello account (instructions for obtaining this can be found [here](https://developer.atlassian.com/cloud/trello/guides/rest-api/authorization/))
