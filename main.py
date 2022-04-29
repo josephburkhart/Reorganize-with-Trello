@@ -10,6 +10,7 @@
 from pathlib import Path
 import tkinter as tk
 from tkinter import ttk
+from tkinter import filedialog
 import trello
 import move_and_log
 from collections import namedtuple
@@ -193,21 +194,34 @@ class MainApplication:
         self.config_file_path = config_file_path
         self.error_log_path = error_log_path
         self.change_log_path = change_log_path
-        
+
         # Check for input errors
         if not len(column_names) == len(column_widths) == len(heading_names):
             print("Error: column_names, column_widths, and heading_names must be lists of identical length")
             self.exit_app()
+        
+        # Initialize Column Data
+        self.column_names = column_names
+        self.column_widths = column_widths
+        self.heading_names = heading_names
 
         # Import configuration settings and flags
         self.settings = self.load_settings(self.config_file_path)
         self.flags = self.load_flags(self.config_file_path)
-        
-        # Initialize Data
-        self.row_names = list_names(current_dir=Path.cwd())
-        self.column_names = column_names
-        self.column_widths = column_widths
-        self.heading_names = heading_names
+
+        # Create GUI
+        self.create_gui()
+        print('Initialization complete\n')
+
+
+    def create_gui(self):
+        """Create the user interface based on key parameters and data"""
+        # Set current working directory
+        self.cwd = Path.cwd()
+        print(f'Current directory: {self.cwd}{os.sep}') #TODO: make the cnsole output look better
+
+        # Determine row names from current directory
+        self.row_names = list_names(current_dir=self.cwd)
 
         # Create table frame
         self.tableframe = tk.Frame(self.parent)
@@ -228,7 +242,7 @@ class MainApplication:
         # Create info labels and messages
         self.cwdlabel = tk.Label(self.infoframe, text='Current Directory:\t', font='Calibri 10 bold')
         self.cwdlabel.grid(row=0, column=0, sticky='n')
-        self.cwdmessage = tk.Message(self.infoframe, text=str(Path.cwd()), width=750, justify='left')
+        self.cwdmessage = tk.Message(self.infoframe, text=str(self.cwd), width=750, justify='left')
         self.cwdmessage.grid(row=0, column=1, sticky='w')
 
         self.rdlabel = tk.Label(self.infoframe, text='Reorg Directory:\t', font='Calibri 10 bold')
@@ -237,8 +251,8 @@ class MainApplication:
         self.rdmessage.grid(row=2, column=1, sticky='w')
         
         instructions=('For each item, enter category names to move it to <base>\\<reorg>\\<cat1>\\<cat2>\\<cat3>\n\n' +
-                      'Items can be flagged to indicate an issue. A flagged item will not be moved, and a trello card will be created. ' +
-                      'Flags can be \'d\' (duplicate), \'u\' (unclear) or any other character (issue)')
+                    'Items can be flagged to indicate an issue. A flagged item will not be moved, and a trello card will be created. ' +
+                    'Flags can be \'d\' (duplicate), \'u\' (unclear) or any other character (issue)')
         self.messagebox = tk.Message(self.infoframe, text=instructions, width=750, justify='left')
         self.messagebox.grid(row=3, column=0, columnspan=2, sticky='ns')
 
@@ -249,15 +263,28 @@ class MainApplication:
         # Create buttons
         self.process_button = tk.Button(self.buttonframe,text="Process",command=self.process_entries)
         self.process_button.grid(row=0, column=0)
+        self.reload_button = tk.Button(self.buttonframe,text="Reload",command=self.reload_with_new_cwd)
+        self.reload_button.grid(row=0, column=1)
         self.exit_button = tk.Button(self.buttonframe, text="Exit", command=self.exit_app)
-        self.exit_button.grid(row=0, column=1)
-
-        print('Initialization complete\n')
+        self.exit_button.grid(row=0, column=2)
 
     def exit_app(self):
         """Close the main window"""
         print('Shutting down')
         self.parent.destroy()
+
+    def reload_with_new_cwd(self):
+        """Prompt user to choose a new working directory, move to it,
+        and re-initialize MainApplication"""
+        print("Reloading with new working directory: ", end="")
+        
+        new_cwd = Path(filedialog.askdirectory())
+        
+        if str(new_cwd) == '.':
+            print('no directory chosen')
+        else:
+            os.chdir(str(new_cwd))
+            self.create_gui()
 
     def process_entries(self):
         print("Processing table entries...\n")
@@ -292,7 +319,7 @@ class MainApplication:
             current_time = time.strftime('%Y-%m-%d %H:%M:%S %z', time.localtime(time.time()))
             
             #paths for movement
-            source = Path.cwd() / e.name
+            source = self.cwd / e.name
             if e.cat3 != '':
                 destination = Path(self.settings['REORG_DIRECTORY']) / e.cat1 / e.cat2 / e.cat3 / source.name
             elif e.cat2 !='':
@@ -362,7 +389,7 @@ class MainApplication:
         # Note: could also use len(row_ids) == len(row_ids_for_processing)
         if self.table.tree.get_children() == ():
             print('All entries have been processed')
-            self.exit_app()
+            self.reload_with_new_cwd()
 
     def load_settings(self, config_file_path):
         """Loads keys and options from an INI configuration file, checks to make
@@ -424,7 +451,6 @@ class MainApplication:
                 config.write(config_file)
 
         print('Settings loaded successfully!')
-        print(f'Current directory: {Path.cwd()}{os.sep}')
         print(f"Reorganization directory: {settings['REORG_DIRECTORY']}{os.sep}")
         return dict(settings)
 
@@ -455,7 +481,7 @@ if __name__ == "__main__":
 
     # Create GUI
     MainApplication(parent=root, 
-                    config_file_path=Path(__file__).parent / 'config.ini',
+                    config_file_path=Path(__file__).parent / 'testconfig.ini',
                     error_log_path=Path(__file__).parent / 'error.log',
                     change_log_path=Path(__file__).parent / 'change.log',
                     column_names=['#0', 'flag', 'cat1', 'cat2', 'cat3', 'issue_message'],
